@@ -1,15 +1,15 @@
 package card
 
 const (
-	CardType_Feng int = iota + 1 //风牌：东、南、西、北、
+	CardType_Wan  int = iota + 1 //万子
+	CardType_Tiao //条子
+	CardType_Tong //筒子
+
+	CardType_Feng //风牌：东、南、西、北、
 
 	CardType_Jian //箭牌：中、发、白
 
 	CardType_Hua //花牌：春、夏、秋、冬，梅、兰、竹、菊
-
-	CardType_Wan  //万子
-	CardType_Tiao //条子
-	CardType_Tong //筒子
 )
 
 const (

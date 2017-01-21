@@ -2,12 +2,12 @@ package card
 
 type CardInHand struct {
 	ruleOpt		*RuleOptions
-	ShowCard	[]*Card			//已经吃、碰、杠，显示给对手的牌
-	HideCard	[]*Card			//还在手上隐藏不可见的牌
-	HuaCard		[]*Card			//拿到的花牌
+	ShowCard	*Cards			//已经吃、碰、杠，显示给对手的牌
+	HideCard	*Cards			//还在手上隐藏不可见的牌
+	HuaCard		*Cards			//拿到的花牌
 }
 
-func NewCardInHand(opt RuleOptions) *CardInHand {
+func NewCardInHand(opt *RuleOptions) *CardInHand {
 	return &CardInHand{
 		ruleOpt: 	opt,
 	}
@@ -30,6 +30,8 @@ func (cardInHand *CardInHand) Chi(card *Card) bool {
 	}
 
 	//todo chi what
+
+	return true
 }
 
 func (cardInHand *CardInHand) CanPengWhat() []*Card {
@@ -49,7 +51,7 @@ func (cardInHand *CardInHand) CanGangWhat() []*Card {
 
 func (cardInHand *CardInHand) Gang(card *Card) bool {
 	//todo
-	return nil
+	return true
 }
 
 func (cardInHand *CardInHand) CanHuWhat() []*Card {
@@ -62,9 +64,15 @@ func (cardInHand *CardInHand) Hu (card *Card) bool {
 	return true
 }
 
-//胡牌后的分数，只有胡牌才有该分数
-func (cardInhand *CardInHand) Score() int {
+//计算胡牌后的分数，当且仅当胡牌成功后才应该调该函数计算分数
+func (cardInhand *CardInHand) ComputeScore() int {
 	//todo
 	return 0
 }
+
+//出牌
+func (cardInHand *CardInHand) TakeWay(card *Card) bool{
+	return cardInHand.HideCard.TakeWay(card)
+}
+
 
