@@ -14,4 +14,3 @@ func TestCard(t *testing.T) {
 	data = append(data[0:0], data[1:]...)
 	t.Log(data)
 }
-
