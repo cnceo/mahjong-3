@@ -2,9 +2,9 @@ package card
 
 type CardInHand struct {
 	ruleOpt			*RuleOptions
-	ShowCard		*Cards			//已经吃、碰、杠，显示给对手的牌
-	HideCard		*Cards			//还在手上隐藏不可见的风牌
-	HuaCard			*Cards			//拿到的花牌
+	ShowCard		*Cards
+	HideCard		*Cards
+	HuaCard			*Cards
 }
 
 func NewCardInHand(opt *RuleOptions) *CardInHand {

@@ -1,7 +1,11 @@
 package card
 
+const(
+	Max_CardType = CardType_Hua - CardType_Wan
+)
+
 const (
-	CardType_Wan  int = iota + 1 //万子
+	CardType_Wan  int = iota//万子
 	CardType_Tiao //条子
 	CardType_Tong //筒子
 
