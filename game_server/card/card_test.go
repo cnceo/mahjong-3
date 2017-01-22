@@ -21,7 +21,7 @@ func TestSort(t *testing.T) {
 	}
 	t.Log("before sort :")
 	t.Log(cards.ToString(), cards.Len())
-	Sort(cards)
+	cards.Sort()
 	t.Log("after sort :")
 	t.Log(cards.ToString(), cards.Len())
 

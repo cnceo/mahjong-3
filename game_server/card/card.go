@@ -108,6 +108,10 @@ func (cards *Cards) RandomTakeWayOne() *Card {
 	return card
 }
 
+func (cards *Cards)Sort() {
+	sort.Sort(cards)
+}
+
 func (cards *Cards) ToString() string {
 	str := ""
 	for _, card := range cards.data{
@@ -115,11 +119,6 @@ func (cards *Cards) ToString() string {
 	}
 	return str
 }
-
-func Sort(cards *Cards) {
-	sort.Sort(cards)
-}
-
 
 func cardNameMap() map[int]map[int]string {
 	return map[int]map[int]string{

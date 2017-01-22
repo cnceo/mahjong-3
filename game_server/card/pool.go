@@ -41,4 +41,6 @@ func (pool *Pool) GetCard() *Card {
 	return pool.cards.RandomTakeWayOne()
 }
 
-
+func (pool *Pool) GetCardNum() int {
+	return pool.cards.Len()
+}

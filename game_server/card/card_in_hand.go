@@ -1,10 +1,10 @@
 package card
 
 type CardInHand struct {
-	ruleOpt		*RuleOptions
-	ShowCard	*Cards			//已经吃、碰、杠，显示给对手的牌
-	HideCard	*Cards			//还在手上隐藏不可见的牌
-	HuaCard		*Cards			//拿到的花牌
+	ruleOpt			*RuleOptions
+	ShowCard		*Cards			//已经吃、碰、杠，显示给对手的牌
+	HideCard		*Cards			//还在手上隐藏不可见的风牌
+	HuaCard			*Cards			//拿到的花牌
 }
 
 func NewCardInHand(opt *RuleOptions) *CardInHand {
@@ -13,8 +13,8 @@ func NewCardInHand(opt *RuleOptions) *CardInHand {
 	}
 }
 
-//能吃什么牌
-func (cardInHand *CardInHand) CanChiWhat() []*Card {
+//吃牌组合
+func (cardInHand *CardInHand) CanChiWhat(card *Card) []*Card {
 	if !cardInHand.ruleOpt.WithChi {
 		return nil
 	}
