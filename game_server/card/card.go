@@ -1,9 +1,5 @@
 package card
 
-import (
-	"sort"
-	"mahjong/game_server/util"
-)
 
 type Card struct {
 	CardType int //牌类型
@@ -28,6 +24,22 @@ func (card *Card) CopyFrom(other *Card) {
 	card.CardNo = other.CardNo
 }
 
+//是否字牌：风、箭、花 牌
+func (card *Card) IsZiCard() bool {
+	if card.CardType == CardType_Wan {
+		return false
+	}
+
+	if card.CardType == CardType_Tiao {
+		return false
+	}
+
+	if card.CardType == CardType_Tong  {
+		return false
+	}
+	return true
+}
+
 func (card *Card) Name() string {
 	cardNameMap := cardNameMap()
 	noNameMap, ok1 := cardNameMap[card.CardType]
@@ -42,83 +54,6 @@ func (card *Card) Name() string {
 	return name
 }
 
-type Cards struct {
-	data 	[]*Card
-}
-
-func NewCards() *Cards{
-	return &Cards{
-		data :	make([]*Card, 0),
-	}
-}
-
-func (cards *Cards) Data() []*Card {
-	return cards.data
-}
-
-func (cards *Cards) Len() int {
-	return len(cards.data)
-}
-
-func (cards *Cards) Less(i, j int) bool {
-	if cards.data[i].CardType < cards.data[j].CardType {
-		return true
-	} else if cards.data[i].CardType > cards.data[j].CardType {
-		return false
-	}
-
-	if cards.data[i].CardNo < cards.data[j].CardNo {
-		return true
-	}
-	return false
-}
-
-func (cards *Cards) Swap(i, j int) {
-	swap := cards.data[i]
-	cards.data[i] = cards.data[j]
-	cards.data[j] = swap
-}
-
-func (cards *Cards) AppendCard(card *Card) {
-	cards.data = append(cards.data, card)
-}
-
-func (cards *Cards) AppendCards(other *Cards) {
-	cards.data = append(cards.data, other.data...)
-}
-
-func (cards *Cards) TakeWay(drop *Card) bool {
-	for idx, card := range cards.data {
-		if card.SameAs(drop) {
-			cards.data = append(cards.data[0:idx], cards.data[idx+1:]...)
-			return true
-		}
-	}
-	return false
-}
-
-func (cards *Cards) RandomTakeWayOne() *Card {
-	length := cards.Len()
-	if length == 0 {
-		return nil
-	}
-	idx := util.RandomN(length)
-	card := cards.data[idx]
-	cards.data = append(cards.data[0:idx], cards.data[idx+1:]...)
-	return card
-}
-
-func (cards *Cards)Sort() {
-	sort.Sort(cards)
-}
-
-func (cards *Cards) ToString() string {
-	str := ""
-	for _, card := range cards.data{
-		str += card.Name() + ","
-	}
-	return str
-}
 
 func cardNameMap() map[int]map[int]string {
 	return map[int]map[int]string{
