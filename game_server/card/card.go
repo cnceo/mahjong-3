@@ -6,8 +6,47 @@ type Card struct {
 	CardNo   int //牌编号
 }
 
+//card是否在other的前一位牌
+//比如1万在2万的前一位牌
+func (card *Card) PrevAt(other *Card) bool{
+	if !card.SameTypeAs(other) {
+		return false
+	}
+
+	return card.CardNo + 1 == other.CardNo
+}
+
+func (card *Card) Less(other *Card) bool {
+	if other == nil || card == nil{
+		return false
+	}
+
+	if card.CardType < other.CardType {
+		return true
+	} else if card.CardType > other.CardType {
+		return false
+	}
+
+	return card.CardNo < other.CardNo
+}
+
+func (card *Card) Swap(other *Card) {
+	tmp := &Card{}
+	tmp.CopyFrom(card)
+	card.CopyFrom(other)
+	other.CopyFrom(tmp)
+}
+
+//是否同一类型的牌
+func (card *Card) SameTypeAs(other *Card) bool {
+	if other == nil || card == nil {
+		return false
+	}
+	return other.CardType == card.CardType
+}
+
 func (card *Card) SameAs(other *Card) bool {
-	if other == nil {
+	if other == nil || card == nil {
 		return false
 	}
 	if other.CardType != card.CardType {
@@ -20,12 +59,18 @@ func (card *Card) SameAs(other *Card) bool {
 }
 
 func (card *Card) CopyFrom(other *Card) {
+	if other == nil || card == nil {
+		return
+	}
 	card.CardType = other.CardType
 	card.CardNo = other.CardNo
 }
 
 //是否字牌：风、箭、花 牌
 func (card *Card) IsZiCard() bool {
+	if card == nil {
+		return false
+	}
 	if card.CardType == CardType_Wan {
 		return false
 	}
@@ -41,6 +86,9 @@ func (card *Card) IsZiCard() bool {
 }
 
 func (card *Card) Name() string {
+	if card == nil {
+		return ""
+	}
 	cardNameMap := cardNameMap()
 	noNameMap, ok1 := cardNameMap[card.CardType]
 	if !ok1 {
