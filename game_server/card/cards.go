@@ -318,3 +318,14 @@ func (cards *Cards) splitThreeAndRightOther() (three *Cards, right *Cards){
 	}
 	return
 }
+
+//是否所有的牌都是同一个类型
+func (cards *Cards) isAllCardSameType() bool {
+	length := cards.Len()
+	for idx := 1; idx < length; idx++ {
+		if !cards.At(0).SameTypeAs(cards.At(idx)) {
+			return false
+		}
+	}
+	return true
+}
