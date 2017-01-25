@@ -85,6 +85,38 @@ func (card *Card) IsZiCard() bool {
 	return true
 }
 
+func (card *Card) IsOk() bool {
+	switch card.CardType {
+	case CardType_Wan, CardType_Tiao, CardType_Tong:
+		if card.CardNo < 1 || card.CardNo > 9 {
+			return false
+		} else {
+			return true
+		}
+	case CardType_Feng:
+		if card.CardNo < Feng_CardNo_Dong || card.CardNo > Feng_CardNo_Bei {
+			return false
+		} else {
+			return true
+		}
+	case CardType_Jian:
+		if card.CardNo < Jian_CardNo_Zhong || card.CardNo > Jian_CardNo_Bai {
+			return false
+		} else {
+			return true
+		}
+	case CardType_Hua:
+		if card.CardNo < Hua_CardNo_Chun || card.CardNo > Hua_CardNo_Ju {
+			return false
+		} else {
+			return true
+		}
+	default:
+		return false
+	}
+	return false
+}
+
 func (card *Card) Name() string {
 	if card == nil {
 		return ""

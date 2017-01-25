@@ -339,3 +339,18 @@ func TestCards_ComputeChi(t *testing.T) {
 	}
 
 }
+
+func TestCards_SameAs(t *testing.T) {
+	cards1 := NewCards()
+	cards2 := NewCards()
+	cards1.AppendCard(&Card{CardType:CardType_Feng, CardNo:Feng_CardNo_Dong})
+	cards2.AppendCard(&Card{CardType:CardType_Feng, CardNo:Feng_CardNo_Dong})
+	if !cards1.SameAs(cards2) {
+		t.Fatal("should be same as")
+	}
+
+	cards2.AppendCard(&Card{CardType:CardType_Feng, CardNo:Feng_CardNo_Dong})
+	if cards1.SameAs(cards2) {
+		t.Fatal("should not be same as")
+	}
+}

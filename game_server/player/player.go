@@ -30,7 +30,7 @@ func (player *Player) initCardsSlice()[]*card.Cards {
 }
 
 func (player *Player) AddCard(card *card.Card) {
-	player.CardsInHand[card.CardType].AppendCard(card)
+	player.CardsInHand[card.CardType].AddAndSort(card)
 }
 
 func (player *Player) Chi(card *card.Card) bool {

@@ -115,6 +115,25 @@ func (cards *Cards)Sort() {
 	sort.Sort(cards)
 }
 
+//是否是一样的牌组
+func (cards *Cards) SameAs(other *Cards) bool {
+	if cards == nil || other == nil {
+		return false
+	}
+
+	length := other.Len()
+	if cards.Len() != length {
+		return false
+	}
+
+	for idx := 0; idx < length; idx++ {
+		if !cards.At(idx).SameAs(other.At(idx)) {
+			return false
+		}
+	}
+	return true
+}
+
 //是否一对牌
 func (cards *Cards) IsAA() bool {
 	if cards.Len() != 2 {
