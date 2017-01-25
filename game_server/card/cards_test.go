@@ -278,3 +278,64 @@ func TestCards_IsNotHu(t *testing.T) {
 		t.Fatal("all should not be hu")
 	}
 }
+
+func TestCards_ComputeChi(t *testing.T) {
+	notChiGroup := &Cards{
+		data: []*Card{
+			&Card{CardType:CardType_Feng, CardNo:Feng_CardNo_Dong},
+			&Card{CardType:CardType_Feng, CardNo:Feng_CardNo_Nan},
+		},
+	}
+	groups := notChiGroup.ComputeChiGroup(&Card{CardType:CardType_Feng, CardNo:Feng_CardNo_Xi})
+	if len(groups) != 0 {
+		t.Fatal("should not has group")
+	}
+
+	chiGroup := &Cards{
+		data: []*Card{
+			&Card{CardType:CardType_Wan, CardNo:1},
+			&Card{CardType:CardType_Wan, CardNo:2},
+			&Card{CardType:CardType_Wan, CardNo:3},
+			&Card{CardType:CardType_Wan, CardNo:4},
+			&Card{CardType:CardType_Wan, CardNo:5},
+			&Card{CardType:CardType_Wan, CardNo:5},
+			&Card{CardType:CardType_Wan, CardNo:5},
+			&Card{CardType:CardType_Wan, CardNo:6},
+			&Card{CardType:CardType_Wan, CardNo:7},
+			&Card{CardType:CardType_Wan, CardNo:8},
+			&Card{CardType:CardType_Wan, CardNo:9},
+		},
+	}
+
+	for cardNo:=1; cardNo<10; cardNo++{
+		groups := chiGroup.ComputeChiGroup(&Card{CardType:CardType_Wan, CardNo:cardNo})
+		length := len(groups)
+		if (cardNo == 1 || cardNo == 9) && length != 1 {
+			t.Fatal("should be 1 group")
+		}
+
+		if (cardNo == 2 || cardNo == 8) && length != 2 {
+			t.Fatal("should be 2 group")
+		}
+
+		if (cardNo >= 3 && cardNo <= 7) && length != 3 {
+			t.Fatal("should be 3 group")
+		}
+
+		if len(groups) == 0 {
+			t.Fatal("should has group")
+		}
+		/*
+		t.Log("cardNo :", cardNo)
+		for _, cards := range groups  {
+			t.Log("group :", cards.ToString())
+		}
+		*/
+	}
+
+	nilGroups := chiGroup.ComputeChiGroup(&Card{CardType:CardType_Tong, CardNo:5})
+	if len(nilGroups) != 0 {
+		t.Fatal("it should not has group")
+	}
+
+}

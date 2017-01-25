@@ -136,16 +136,7 @@ func (cards *Cards) IsABC() bool {
 	if cards.Len() != 3 {
 		return false
 	}
-	if cards.At(0).IsZiCard() || cards.At(1).IsZiCard() || cards.At(2).IsZiCard() {
-		return false
-	}
-
-
-	if !cards.isAllCardSameType() {
-		return false
-	}
-
-	return cards.At(0).PrevAt(cards.At(1)) && cards.At(1).PrevAt(cards.At(2))
+	return IsABC(cards.At(0), cards.At(1), cards.At(2))
 }
 
 //是否胡牌, 胡牌公式：m*AAA + n*ABC + AA
@@ -192,14 +183,14 @@ func (cards *Cards) ToString() string {
 	return str
 }
 
-/*	检查指定的牌可以吃牌的组合
+/*	计算指定的牌可以吃牌的组合
 *	假设要吃的牌为C，则需要检查是否存在如下组合：
 *	ABC、BCD、BCCD、BCCCD、BCCCD、CDE
 *	如果存在AB,则添加组合ABC
 *	如果存在BD/BCD/BCCD/BCCCD, 则添加组合BCD
 *	如果存在DE,则添加组合CDE
 */
-func (cards *Cards) ComputeChi(card *Card) []*Cards {
+func (cards *Cards) ComputeChiGroup(card *Card) []*Cards {
 	if card.IsZiCard() {
 		return nil
 	}
@@ -212,8 +203,8 @@ func (cards *Cards) ComputeChi(card *Card) []*Cards {
 
 	//检查AB/BD/DE组合
 	for idx := 0; idx < length-1; idx++ {
-		//if AB组合
-		if cards.At(idx).PrevAt(cards.At(idx+1)) && cards.At(idx+1).PrevAt(card) {
+		//if AB组合，加上card后相当于ABC
+		if IsABC(cards.At(idx), cards.At(idx+1), card) {
 			tmp := NewCards()
 			tmp.AppendCard(cards.At(idx))
 			tmp.AppendCard(cards.At(idx+1))
@@ -221,8 +212,8 @@ func (cards *Cards) ComputeChi(card *Card) []*Cards {
 			cardsSlice = append(cardsSlice, tmp)
 		}
 
-		//if BD组合
-		if cards.At(idx).PrevAt(card) && card.PrevAt(cards.At(idx+1)) {
+		//if BD组合，加上card后相当于BCD
+		if IsABC(cards.At(idx), card, cards.At(idx+1))  {
 			tmp := NewCards()
 			tmp.AppendCard(cards.At(idx))
 			tmp.AppendCard(card)
@@ -230,8 +221,8 @@ func (cards *Cards) ComputeChi(card *Card) []*Cards {
 			cardsSlice = append(cardsSlice, tmp)
 		}
 
-		//if DE组合
-		if card.PrevAt(cards.At(idx)) && cards.At(idx).PrevAt(cards.At(idx+1)) {
+		//if DE组合，加上card后相当于CDE
+		if IsABC(card, cards.At(idx), cards.At(idx+1)) {
 			tmp := NewCards()
 			tmp.AppendCard(card)
 			tmp.AppendCard(cards.At(idx))
@@ -239,10 +230,32 @@ func (cards *Cards) ComputeChi(card *Card) []*Cards {
 			cardsSlice = append(cardsSlice, tmp)
 		}
 
-		//if BCD 组合
-		//if BCCD 组合
-		//if BCCCD 组合
-		//todo
+		//if BCD 组合，加上card后相当于BCCD
+		if IsABBC(cards.At(idx), card, cards.At(idx+1), cards.At(idx+2)) {
+			tmp := NewCards()
+			tmp.AppendCard(cards.At(idx))
+			tmp.AppendCard(card)
+			tmp.AppendCard(cards.At(idx+2))
+			cardsSlice = append(cardsSlice, tmp)
+		}
+
+		//if BCCD 组合，加上card后相当于BCCCD
+		if IsABBBC(cards.At(idx), card, cards.At(idx+1), cards.At(idx+2), cards.At(idx+3)) {
+			tmp := NewCards()
+			tmp.AppendCard(cards.At(idx))
+			tmp.AppendCard(card)
+			tmp.AppendCard(cards.At(idx+3))
+			cardsSlice = append(cardsSlice, tmp)
+		}
+
+		//if BCCCD 组合，加上card后相当于BCCCCD
+		if IsABBBBC(cards.At(idx), card, cards.At(idx+1), cards.At(idx+2), cards.At(idx+3), cards.At(idx+4)) {
+			tmp := NewCards()
+			tmp.AppendCard(cards.At(idx))
+			tmp.AppendCard(card)
+			tmp.AppendCard(cards.At(idx+4))
+			cardsSlice = append(cardsSlice, tmp)
+		}
 	}
 	return cardsSlice
 }
@@ -304,15 +317,4 @@ func (cards *Cards) splitThreeAndRightOther() (three *Cards, right *Cards){
 		data:	cards.data[3:],
 	}
 	return
-}
-
-//是否所有的牌都是同一个类型
-func (cards *Cards) isAllCardSameType() bool {
-	length := cards.Len()
-	for idx := 1; idx < length; idx++ {
-		if !cards.At(0).SameTypeAs(cards.At(idx)) {
-			return false
-		}
-	}
-	return true
 }

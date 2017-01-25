@@ -102,6 +102,65 @@ func (card *Card) Name() string {
 	return name
 }
 
+//检查三张牌是不是ABC顺子牌
+func IsABC(card1, card2, card3 *Card) bool {
+	if card1 == nil || card2 == nil || card3 == nil {
+		return false
+	}
+
+	if card1.IsZiCard() || card2.IsZiCard() || card3.IsZiCard() {
+		return false
+	}
+
+	return card1.PrevAt(card2) && card2.PrevAt(card3)
+}
+
+//检查四张牌是不是ABBC的牌型
+func IsABBC(card1, card2, card3, card4 *Card) bool {
+	if card1 == nil || card2 == nil || card3 == nil ||
+		card4 == nil{
+		return false
+	}
+
+	if card1.IsZiCard() || card2.IsZiCard() || card3.IsZiCard() ||
+		card4.IsZiCard() {
+		return false
+	}
+
+	return card1.PrevAt(card2) && card2.SameAs(card3) && card3.PrevAt(card4)
+}
+
+//检查五张牌是不是ABBBC的牌型
+func IsABBBC(card1, card2, card3, card4, card5 *Card) bool {
+	if card1 == nil || card2 == nil || card3 == nil ||
+		card4 == nil || card5 == nil{
+		return false
+	}
+
+	if card1.IsZiCard() || card2.IsZiCard() || card3.IsZiCard() ||
+		card4.IsZiCard() || card5.IsZiCard() {
+		return false
+	}
+
+	return card1.PrevAt(card2) && card2.SameAs(card3) && card3.SameAs(card4) &&
+		card4.PrevAt(card5)
+}
+
+//检查六张牌是不是ABBBBC的牌型
+func IsABBBBC(card1, card2, card3, card4, card5, card6 *Card) bool {
+	if card1 == nil || card2 == nil || card3 == nil ||
+		card4 == nil || card5 == nil || card6 == nil{
+		return false
+	}
+
+	if card1.IsZiCard() || card2.IsZiCard() || card3.IsZiCard() ||
+		card4.IsZiCard() || card5.IsZiCard() || card6.IsZiCard() {
+		return false
+	}
+
+	return card1.PrevAt(card2) && card2.SameAs(card3) && card3.SameAs(card4) &&
+		card4.SameAs(card5) && card5.PrevAt(card6)
+}
 
 func cardNameMap() map[int]map[int]string {
 	return map[int]map[int]string{
