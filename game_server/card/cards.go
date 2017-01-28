@@ -134,72 +134,57 @@ func (cards *Cards) SameAs(other *Cards) bool {
 	return true
 }
 
-//是否一对牌
-func (cards *Cards) IsAA() bool {
-	if cards.Len() != 2 {
+func (cards *Cards) IsHu() bool  {
+	switch cards.Len() {
+	case 2:
+		return cards.isHu2()
+	case 5:
+		return cards.isHu5()
+	case 8:
+		return cards.isHu8()
+	case 11:
+		return cards.isHu11()
+	case 14:
+		return cards.isHu14()
+	default:
 		return false
 	}
-	return cards.At(0).SameAs(cards.At(1))
-}
-
-//是否3张相同的牌
-func (cards *Cards) IsAAA() bool  {
-	if cards.Len() != 3 {
-		return false
-	}
-	return cards.At(0).SameAs(cards.At(1)) && cards.At(0).SameAs(cards.At(2))
-}
-
-//是否顺子牌
-func (cards *Cards) IsABC() bool {
-	if cards.Len() != 3 {
-		return false
-	}
-	return IsABC(cards.At(0), cards.At(1), cards.At(2))
-}
-
-//是否胡牌, 胡牌公式：m*AAA + n*ABC + AA
-//递归检查：最左边或者最后边3张是否AAA/ABC、剩下的牌是否构成胡牌，直到最后剩下两张是否AA
-func (cards *Cards) IsHu() bool {
-	length := cards.Len()
-	if (length-2)%3 != 0 {//not 2,5,8,11,14
-		return false
-	}
-
-	if length == 2 {
-		if cards.IsAA() {
-			return true
-		}
-		return false
-	}
-
-	var left, three, right *Cards
-	left, three = cards.splitLeftOtherAndThree()
-	if three.IsAAA() && left.IsHu() {
-		return true
-	}
-
-	if three.IsABC() && left.IsHu() {
-		return true
-	}
-
-	three, right = cards.splitThreeAndRightOther()
-	if three.IsAAA() && right.IsHu() {
-		return true
-	}
-	if three.IsABC() && right.IsHu() {
-		return true
-	}
-
 	return false
 }
 
-func (cards *Cards) ToString() string {
-	str := ""
-	for _, card := range cards.data{
-		str += card.Name() + ","
+//检查是否能吃
+func (cards *Cards) canChi(whatCard *Card, whatGroup *Cards) bool {
+	if whatCard.IsZiCard() {
+		return false
 	}
-	return str
+	groups := cards.computeChiGroup(whatCard)
+	for _, group := range groups {
+		if group.SameAs(whatGroup) {
+			return true
+		}
+	}
+	return false
+}
+
+//检查是否能碰
+func (cards *Cards) canPeng(whatCard *Card) bool  {
+	return cards.calcSameCardNum(whatCard) >= 2
+}
+
+//检查是否能杠
+func (cards *Cards) canGang(whatCard *Card) bool {
+	return cards.calcSameCardNum(whatCard) >= 3
+}
+
+//计算与指定牌一样的牌的数量
+func (cards *Cards) calcSameCardNum(whatCard *Card) int {
+	num := 0
+	for _, card := range cards.data {
+		if card.SameAs(whatCard) {
+			num++
+		}
+	}
+	return num
 }
 
 /*	计算指定的牌可以吃牌的组合
@@ -209,7 +194,7 @@ func (cards *Cards) ToString() string {
 *	如果存在BD/BCD/BCCD/BCCCD, 则添加组合BCD
 *	如果存在DE,则添加组合CDE
 */
-func (cards *Cards) ComputeChiGroup(card *Card) []*Cards {
+func (cards *Cards) computeChiGroup(card *Card) []*Cards {
 	if card.IsZiCard() {
 		return nil
 	}
@@ -279,67 +264,32 @@ func (cards *Cards) ComputeChiGroup(card *Card) []*Cards {
 	return cardsSlice
 }
 
-//检查指定的牌是否可以碰
-func (cards *Cards) CheckPeng(card *Card) bool {
-	cnt := 0
-	for _, c := range cards.data {
-		if c.SameAs(card) {
-			cnt++
-			if cnt == 2 {
-				return true
-			}
-		}
+
+func (cards *Cards) ToString() string {
+	str := ""
+	for _, card := range cards.data{
+		str += card.Name() + ","
 	}
-	return false
+	return str
 }
 
-//检查指定的牌是否可以杠
-func (cards *Cards) CheckGang(card *Card) bool {
-	cnt := 0
-	for _, c := range cards.data {
-		if c.SameAs(card) {
-			cnt++
-			if cnt == 3 {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-//把牌分成左右2份：左边其它，3个右边
-func (cards *Cards) splitLeftOtherAndThree() (other *Cards, three *Cards){
+//把牌分成左右2份：[:idx], [idx+1:]
+func (cards *Cards) Split(idx int) (left, right *Cards){
 	length := cards.Len()
-	if length <= 3 {
-		return nil, nil
+	if length <= idx {
+		return cards, nil
 	}
-	other = &Cards{
-		data:	cards.data[0 : length-3],
-	}
-	three = &Cards{
-		data:	cards.data[length-3:],
-	}
-	return
-}
-
-//把牌分成左右2份：左边3个，其它的在右边
-func (cards *Cards) splitThreeAndRightOther() (three *Cards, right *Cards){
-	length := cards.Len()
-	if length <= 3 {
-		return nil, nil
-	}
-
-	three = &Cards{
-		data:	cards.data[0:3],
+	left = &Cards{
+		data:	cards.data[0 : length-idx],
 	}
 	right = &Cards{
-		data:	cards.data[3:],
+		data:	cards.data[length-idx:],
 	}
-	return
+	return left, right
 }
 
 //是否所有的牌都是同一个类型
-func (cards *Cards) isAllCardSameType() bool {
+func (cards *Cards) IsAllCardSameType() bool {
 	length := cards.Len()
 	for idx := 1; idx < length; idx++ {
 		if !cards.At(0).SameTypeAs(cards.At(idx)) {
@@ -347,4 +297,131 @@ func (cards *Cards) isAllCardSameType() bool {
 		}
 	}
 	return true
+}
+
+
+//胡2张牌
+func (cards *Cards)isHu2() bool {
+	if cards.Len() != 2 {
+		return false
+	}
+	return IsAA(cards.data[0], cards.data[1])
+}
+
+//胡5张牌
+func (cards *Cards) isHu5() bool {
+	if cards.Len() != 5 {
+		return false
+	}
+
+	//AA+BCD, 2 + 3
+	if IsAA(cards.data[0], cards.data[1]) && Is3CardsOk(cards.data[2:5]...){
+		return true
+	}
+
+	//ABC + DD, 3 + 2
+	if Is3CardsOk(cards.data[0:3]...) && IsAA(cards.data[3], cards.data[4]) {
+		return true
+	}
+
+	//A + BBB + C
+	if IsAAA(cards.data[1], cards.data[2], cards.data[3]) &&
+		Is3CardsOk(cards.data[0], cards.data[1], cards.data[4]){
+		return true
+	}
+
+	return false
+}
+
+//胡8张牌
+func (cards *Cards) isHu8() bool {
+	if cards.Len() != 8 {
+		return false
+	}
+	//2 + 6
+	if IsAA(cards.data[0], cards.data[1]) &&
+		Is6CardsOk(cards.data[2:8]...) {
+		return true
+	}
+
+	//6 + 2
+	if Is6CardsOk(cards.data[0:6]...)&&
+		IsAA(cards.data[6], cards.data[7]) {
+		return true
+	}
+
+	//3 + 2 + 3
+	if Is3CardsOk(cards.data[0:3]...) && IsAA(cards.data[3], cards.data[4]) &&
+		Is3CardsOk(cards.data[5:8]...) {
+		return true
+	}
+	return false
+}
+
+//胡11张牌
+func (cards *Cards) isHu11() bool {
+	if cards.Len() != 11 {
+		return false
+	}
+
+	//最左边的两个为眼， 2 + 9
+	if IsAA(cards.data[0], cards.data[1]) &&
+		Is9CardsOk(cards.data[2:11]...) {
+		return true
+	}
+
+	//最右边的两个为眼， 9 + 2
+	if Is9CardsOk(cards.data[0:9]...) &&
+		IsAA(cards.data[9], cards.data[10]) {
+		return true
+	}
+
+	//中间左边两个为眼， 3 + 2 + 6
+	if Is3CardsOk(cards.data[0:3]...) && IsAA(cards.data[3], cards.data[4]) &&
+		Is6CardsOk(cards.data[5:11]...) {
+		return true
+	}
+
+	//中间右边两个为眼， 6 + 2 + 3
+	if Is6CardsOk(cards.data[0:6]...) && IsAA(cards.data[6], cards.data[7]) &&
+		Is3CardsOk(cards.data[8:11]...){
+		return true
+	}
+	return false
+}
+
+//胡14张牌
+func (cards *Cards) isHu14() bool {
+	if cards.Len() != 14 {
+		return false
+	}
+
+	// 2 + 12
+	if IsAA(cards.data[0], cards.data[1]) && Is12CardsOk(cards.data[2:14]...) {
+		return true
+	}
+
+	// 3 + 2 + 9
+	if Is3CardsOk(cards.data[0:3]...) && IsAA(cards.data[3], cards.data[4]) &&
+		Is9CardsOk(cards.data[5:14]...) {
+		return true
+	}
+
+	// 6 + 2 +6
+	if Is6CardsOk(cards.data[0:6]...) && IsAA(cards.data[6], cards.data[7]) &&
+		Is6CardsOk(cards.data[8:14]...) {
+		return true
+	}
+
+	// 9 + 2 + 3
+	if Is9CardsOk(cards.data[0:9]...) && IsAA(cards.data[9], cards.data[10]) &&
+		Is3CardsOk(cards.data[11:14]...) {
+		return true
+	}
+
+	// 12 + 3
+	if Is12CardsOk(cards.data[0:12]...) && IsAA(cards.data[0], cards.data[1]) {
+		return true
+	}
+	return false
 }

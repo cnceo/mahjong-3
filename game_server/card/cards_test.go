@@ -39,14 +39,6 @@ func TestSort(t *testing.T) {
 	t.Log("after takeway from only one card :")
 	t.Log(oneCards.ToString(), oneCards.Len())
 
-	left, three := cards.splitLeftOtherAndThree()
-	t.Log("left :", left.ToString())
-	t.Log("three :", three.ToString())
-
-	var right *Cards
-	three, right = cards.splitThreeAndRightOther()
-	t.Log("three :", three.ToString())
-	t.Log("right :", right.ToString())
 }
 
 func TestCards_Is5Card(t *testing.T) {
@@ -183,12 +175,7 @@ func TestCards_IsHu(t *testing.T) {
 	hu14.Sort()
 
 	if !hu2.IsHu() || !hu5.IsHu() || !hu8.IsHu() || !hu11.IsHu() || !hu14.IsHu(){
-		//t.Fatal("all should be hu")
-		t.Log(hu2.IsHu())
-		t.Log(hu5.IsHu())
-		t.Log(hu8.IsHu())
-		t.Log(hu11.IsHu())
-		t.Log(hu14.IsHu())
+		t.Fatal("all should be hu")
 	}
 }
 
@@ -286,7 +273,7 @@ func TestCards_ComputeChi(t *testing.T) {
 			&Card{CardType:CardType_Feng, CardNo:Feng_CardNo_Nan},
 		},
 	}
-	groups := notChiGroup.ComputeChiGroup(&Card{CardType:CardType_Feng, CardNo:Feng_CardNo_Xi})
+	groups := notChiGroup.computeChiGroup(&Card{CardType:CardType_Feng, CardNo:Feng_CardNo_Xi})
 	if len(groups) != 0 {
 		t.Fatal("should not has group")
 	}
@@ -308,7 +295,7 @@ func TestCards_ComputeChi(t *testing.T) {
 	}
 
 	for cardNo:=1; cardNo<10; cardNo++{
-		groups := chiGroup.ComputeChiGroup(&Card{CardType:CardType_Wan, CardNo:cardNo})
+		groups := chiGroup.computeChiGroup(&Card{CardType:CardType_Wan, CardNo:cardNo})
 		length := len(groups)
 		if (cardNo == 1 || cardNo == 9) && length != 1 {
 			t.Fatal("should be 1 group")
@@ -325,15 +312,9 @@ func TestCards_ComputeChi(t *testing.T) {
 		if len(groups) == 0 {
 			t.Fatal("should has group")
 		}
-		/*
-		t.Log("cardNo :", cardNo)
-		for _, cards := range groups  {
-			t.Log("group :", cards.ToString())
-		}
-		*/
 	}
 
-	nilGroups := chiGroup.ComputeChiGroup(&Card{CardType:CardType_Tong, CardNo:5})
+	nilGroups := chiGroup.computeChiGroup(&Card{CardType:CardType_Tong, CardNo:5})
 	if len(nilGroups) != 0 {
 		t.Fatal("it should not has group")
 	}
@@ -352,5 +333,96 @@ func TestCards_SameAs(t *testing.T) {
 	cards2.AppendCard(&Card{CardType:CardType_Feng, CardNo:Feng_CardNo_Dong})
 	if cards1.SameAs(cards2) {
 		t.Fatal("should not be same as")
+	}
+}
+
+
+func TestCards_IsHuSpe(t *testing.T) {
+
+	//胡：23334
+	// ABBBC => AA + {ABC}
+	hu5 := &Cards{
+		data: []*Card{
+			&Card{CardType:CardType_Tiao, CardNo:2},
+			&Card{CardType:CardType_Tiao, CardNo:3},
+
+			&Card{CardType:CardType_Tiao, CardNo:4},
+			&Card{CardType:CardType_Tiao, CardNo:3},
+			&Card{CardType:CardType_Tiao, CardNo:3},
+		},
+	}
+
+	//胡 : 22223344、22333344、22334444、22334455、
+	//  :  22223444、22233344
+	//  AAAABBCC/AABBBBCC/AABBCCCC/AABBCCDD  => AA + {AABBCC}
+	hu8 := &Cards{
+		data: []*Card{
+			&Card{CardType:CardType_Tiao, CardNo:2},
+			&Card{CardType:CardType_Tiao, CardNo:2},
+			&Card{CardType:CardType_Tiao, CardNo:2},
+			&Card{CardType:CardType_Tiao, CardNo:2},
+
+			&Card{CardType:CardType_Tiao, CardNo:3},
+			&Card{CardType:CardType_Tiao, CardNo:3},
+
+			&Card{CardType:CardType_Tiao, CardNo:4},
+			&Card{CardType:CardType_Tiao, CardNo:4},
+		},
+	}
+
+	//胡: {11222333444 常规算法能检查出来}、12222333444、12223333444、12223334444{不能胡}、
+	//    22223334445{不能胡}、22233334445、22233344445、{22233344455、22233344456}
+	//   AAA/ABC + {Hu8}
+	hu11 := &Cards{
+		data: []*Card{
+			&Card{CardType:CardType_Tiao, CardNo:1},
+
+			&Card{CardType:CardType_Tiao, CardNo:2},
+			&Card{CardType:CardType_Tiao, CardNo:2},
+			&Card{CardType:CardType_Tiao, CardNo:2},
+			&Card{CardType:CardType_Tiao, CardNo:2},
+
+			&Card{CardType:CardType_Tiao, CardNo:3},
+			&Card{CardType:CardType_Tiao, CardNo:3},
+			&Card{CardType:CardType_Tiao, CardNo:3},
+
+			&Card{CardType:CardType_Wan, CardNo:4},
+			&Card{CardType:CardType_Wan, CardNo:4},
+			&Card{CardType:CardType_Wan, CardNo:4},
+		},
+	}
+
+	//12222333344445
+	hu14 := &Cards{
+		data: []*Card{
+			&Card{CardType:CardType_Tiao, CardNo:1},
+
+			&Card{CardType:CardType_Tiao, CardNo:2},
+			&Card{CardType:CardType_Tiao, CardNo:2},
+			&Card{CardType:CardType_Tiao, CardNo:2},
+			&Card{CardType:CardType_Tiao, CardNo:2},
+
+			&Card{CardType:CardType_Tiao, CardNo:3},
+			&Card{CardType:CardType_Tiao, CardNo:3},
+			&Card{CardType:CardType_Tiao, CardNo:3},
+			&Card{CardType:CardType_Tiao, CardNo:3},
+
+			&Card{CardType:CardType_Tiao, CardNo:4},
+			&Card{CardType:CardType_Tiao, CardNo:4},
+			&Card{CardType:CardType_Tiao, CardNo:4},
+			&Card{CardType:CardType_Tiao, CardNo:4},
+
+			&Card{CardType:CardType_Tiao, CardNo:5},
+		},
+	}
+
+
+	hu5.Sort()
+	hu8.Sort()
+	hu11.Sort()
+	hu14.Sort()
+
+	if  !hu5.IsHu() || !hu8.IsHu() || !hu11.IsHu() || !hu14.IsHu(){
+		t.Fatal("all should be hu")
 	}
 }

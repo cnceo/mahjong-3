@@ -1,7 +1,7 @@
 package card
 
 type PlayingCards struct {
-	cardsInHand			*Cards		//手上的牌
+	cardsInHand			*Cards			//手上的牌
 	cardsAlreadyChi		[]*Cards		//已经吃了的牌
 	cardsAlreadyPeng	[]*Cards		//已经碰了的牌
 	cardsAlreadyGang	[]*Cards		//已经杠了的牌
@@ -17,28 +17,58 @@ func NewPlayingCards() *PlayingCards {
 	return cards
 }
 
+//增加一张牌
 func (playingCards *PlayingCards) AddCard(card *Card) {
 	playingCards.cardsInHand.AddAndSort(card)
 }
 
 //吃牌，要吃whatCard，以及吃哪个组合whatGroup
 func (playingCards *PlayingCards) Chi(whatCard *Card, whatGroup *Cards) bool {
-	if whatCard.IsZiCard() {//字牌不能吃
-		return false
-	}
-
 	if !playingCards.canChi(whatCard, whatGroup) {
 		return false
 	}
-	for _, card := range whatGroup.Data() {
+
+	for _, card := range whatGroup.Data() {//移动除了whatCard以外的card到cardsAlreadyChi
 		if card.SameAs(whatCard) {
 			continue
 		}
 		playingCards.cardsInHand.TakeWay(card)
 		playingCards.cardsAlreadyChi[whatCard.CardType].AppendCard(card)
 	}
+
+	//最后把whatCard加入cardsAlreadyChi
 	playingCards.cardsAlreadyChi[whatCard.CardType].AddAndSort(whatCard)
 
+	return true
+}
+
+//碰牌
+func (playingCards *PlayingCards) Peng(whatCard *Card) bool {
+	if !playingCards.canPeng(whatCard) {
+		return false
+	}
+
+	playingCards.cardsInHand.TakeWay(whatCard)
+	playingCards.cardsInHand.TakeWay(whatCard)
+	playingCards.cardsAlreadyPeng[whatCard.CardType].AppendCard(whatCard)
+	playingCards.cardsAlreadyPeng[whatCard.CardType].AppendCard(whatCard)
+	playingCards.cardsAlreadyPeng[whatCard.CardType].AddAndSort(whatCard)
+	return true
+}
+
+//杠牌
+func (playingCards *PlayingCards) Gang(whatCard *Card) bool {
+	if !playingCards.canGang(whatCard) {
+		return false
+	}
+
+	playingCards.cardsInHand.TakeWay(whatCard)
+	playingCards.cardsInHand.TakeWay(whatCard)
+	playingCards.cardsInHand.TakeWay(whatCard)
+	playingCards.cardsAlreadyGang[whatCard.CardType].AppendCard(whatCard)
+	playingCards.cardsAlreadyGang[whatCard.CardType].AppendCard(whatCard)
+	playingCards.cardsAlreadyGang[whatCard.CardType].AppendCard(whatCard)
+	playingCards.cardsAlreadyGang[whatCard.CardType].AddAndSort(whatCard)
 	return true
 }
 
@@ -51,6 +81,23 @@ func (playingCards *PlayingCards) ToString() string{
 	return str
 }
 
+//检查是否能吃
+func (playingCards *PlayingCards) canChi(whatCard *Card, whatGroup *Cards) bool {
+	return playingCards.cardsInHand.canChi(whatCard, whatGroup)
+}
+
+//检查是否能碰
+func (playingCards *PlayingCards) canPeng(whatCard *Card) bool  {
+	return playingCards.cardsInHand.canPeng(whatCard)
+}
+
+//检查是否能杠
+func (playingCards *PlayingCards) canGang(whatCard *Card) bool {
+	return playingCards.cardsInHand.canGang(whatCard)
+}
+
+
+//初始化cards
 func (playingCards *PlayingCards) initCardsSlice()[]*Cards {
 	cardsSlice := make([]*Cards, Max_CardType-1)
 	for idx := 0; idx < Max_CardType-1; idx++ {
@@ -65,15 +112,4 @@ func (playingCards *PlayingCards) cardsSliceToString(cardsSlice []*Cards) string
 		str += cards.ToString() + "\n"
 	}
 	return str
-}
-
-//检查是否能吃
-func (playingCards *PlayingCards) canChi(whatCard *Card, whatGroup *Cards) bool {
-	groups := playingCards.cardsInHand.ComputeChiGroup(whatCard)
-	for _, group := range groups {
-		if group.SameAs(whatGroup) {
-			return true
-		}
-	}
-	return false
 }

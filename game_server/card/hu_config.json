@@ -1,0 +1,156 @@
+
+{
+  "hu" : [
+    {
+      "name"  : "D4X_HU",
+      "desc"  : "大四喜",
+      "score" : 88,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "D3Y_HU",
+      "desc"  : "大三元",
+      "score" : 88,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "L1S_HU",
+      "desc"  : "绿一色",
+      "score" : 88,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "9LBD_HU",
+      "desc"  : "九莲宝灯",
+      "score" : 88,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "4Gang_HU",
+      "desc"  : "四杠",
+      "score" : 88,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "L7D_HU",
+      "desc"  : "连七对",
+      "score" : 88,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "13Y_HU",
+      "desc"  : "十三幺",
+      "score" : 88,
+      "is_enabled" : true
+    },
+
+
+    {
+      "name"  : "QY9_HU",
+      "desc"  : "清幺九",
+      "score" : 64,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "X4X_HU",
+      "desc"  : "小四喜",
+      "score" : 64,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "X3Y_HU",
+      "desc"  : "小三元",
+      "score" : 64,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "Z1S_HU",
+      "desc"  : "字一色",
+      "score" : 64,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "4AK_HU",
+      "desc"  : "四暗刻",
+      "score" : 64,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "1S2LH_HU",
+      "desc"  : "一色双龙会",
+      "score" : 64,
+      "is_enabled" : true
+    },
+
+
+    {
+      "name"  : "1S4TS_HU",
+      "desc"  : "一色四同顺",
+      "score" : 48,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "1S4JG_HU",
+      "desc"  : "一色四节高",
+      "score" : 48,
+      "is_enabled" : true
+    },
+
+
+    {
+      "name"  : "1S4BG_HU",
+      "desc"  : "一色四步高",
+      "score" : 32,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "3Gang_HU",
+      "desc"  : "3杠",
+      "score" : 32,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "HY9_HU",
+      "desc"  : "混幺9",
+      "score" : 32,
+      "is_enabled" : true
+    },
+
+
+    {
+      "name"  : "7_HU",
+      "desc"  : "七对",
+      "score" : 24,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "Q1S_HU",
+      "desc"  : "清一色",
+      "score" : 24,
+      "is_enabled" : true
+    },
+
+
+    {
+      "name"  : "PP_HU",
+      "desc"  : "碰碰胡",
+      "score" : 6,
+      "is_enabled" : true
+    },
+    {
+      "name"  : "H1S_HU",
+      "desc"  : "混一色",
+      "score" : 6,
+      "is_enabled" : true
+    },
+
+
+    {
+      "name"  : "MQQ_HU",
+      "desc"  : "门前清",
+      "score" : 2,
+      "is_enabled" : true
+    }
+
+  ]
+}
