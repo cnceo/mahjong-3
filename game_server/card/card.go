@@ -1,9 +1,8 @@
 package card
 
-
 type Card struct {
-	CardType int //牌类型
-	CardNo   int //牌编号
+	CardType int 	//牌类型
+	CardNo   int 	//牌编号
 }
 
 //card是否在other的前一位牌, 子不存在前一位的概念
@@ -118,6 +117,12 @@ func (card *Card) IsOk() bool {
 		return false
 	}
 	return false
+}
+
+func (card *Card) MakeKey() int64 {
+	var ret int64
+	ret = int64(card.CardType ) | int64(card.CardNo << 32)
+	return ret
 }
 
 func (card *Card) Name() string {

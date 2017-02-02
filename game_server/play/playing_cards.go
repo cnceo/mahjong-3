@@ -1,18 +1,23 @@
-package card
+package play
+
+import (
+	"mahjong/game_server/hu_checker"
+	"mahjong/game_server/card"
+)
 
 type PlayingCards struct {
-	magicCards			[]*Card			//可变的牌
-	cardsInHand			*Cards			//手上的牌
-	cardsAlreadyChi		[]*Cards		//已经吃了的牌
-	cardsAlreadyPeng	[]*Cards		//已经碰了的牌
-	cardsAlreadyGang	[]*Cards		//已经杠了的牌
+	magicCards			[]*card.Card			//可变的牌
+	cardsInHand			*card.Cards			//手上的牌
+	cardsAlreadyChi		[]*card.Cards		//已经吃了的牌
+	cardsAlreadyPeng	[]*card.Cards		//已经碰了的牌
+	cardsAlreadyGang	[]*card.Cards		//已经杠了的牌
 }
 
 func NewPlayingCards() *PlayingCards {
 	cards :=  &PlayingCards{
 	}
-	cards.magicCards = make([]*Card, 0)
-	cards.cardsInHand = NewCards()
+	cards.magicCards = make([]*card.Card, 0)
+	cards.cardsInHand = card.NewCards()
 	cards.cardsAlreadyChi = cards.initCardsSlice()
 	cards.cardsAlreadyPeng = cards.initCardsSlice()
 	cards.cardsAlreadyGang = cards.initCardsSlice()
@@ -20,19 +25,19 @@ func NewPlayingCards() *PlayingCards {
 }
 
 //增加一张牌
-func (playingCards *PlayingCards) AddCard(card *Card) {
+func (playingCards *PlayingCards) AddCard(card *card.Card) {
 	playingCards.cardsInHand.AddAndSort(card)
 }
 
 //丢弃一张牌
-func (playingCards *PlayingCards) DropCard(card *Card) bool {
+func (playingCards *PlayingCards) DropCard(card *card.Card) bool {
 	succ := playingCards.cardsInHand.TakeWay(card)
 	playingCards.cardsInHand.Sort()
 	return succ
 }
 
 //吃牌，要吃whatCard，以及吃哪个组合whatGroup
-func (playingCards *PlayingCards) Chi(whatCard *Card, whatGroup *Cards) bool {
+func (playingCards *PlayingCards) Chi(whatCard *card.Card, whatGroup *card.Cards) bool {
 	if !playingCards.canChi(whatCard, whatGroup) {
 		return false
 	}
@@ -52,7 +57,7 @@ func (playingCards *PlayingCards) Chi(whatCard *Card, whatGroup *Cards) bool {
 }
 
 //碰牌
-func (playingCards *PlayingCards) Peng(whatCard *Card) bool {
+func (playingCards *PlayingCards) Peng(whatCard *card.Card) bool {
 	if !playingCards.canPeng(whatCard) {
 		return false
 	}
@@ -66,7 +71,7 @@ func (playingCards *PlayingCards) Peng(whatCard *Card) bool {
 }
 
 //杠牌
-func (playingCards *PlayingCards) Gang(whatCard *Card) bool {
+func (playingCards *PlayingCards) Gang(whatCard *card.Card) bool {
 	if !playingCards.canGang(whatCard) {
 		return false
 	}
@@ -91,31 +96,31 @@ func (playingCards *PlayingCards) ToString() string{
 }
 
 //检查是否能吃
-func (playingCards *PlayingCards) canChi(whatCard *Card, whatGroup *Cards) bool {
-	return playingCards.cardsInHand.canChi(whatCard, whatGroup)
+func (playingCards *PlayingCards) canChi(whatCard *card.Card, whatGroup *card.Cards) bool {
+	return playingCards.cardsInHand.CanChi(whatCard, whatGroup)
 }
 
 //检查是否能碰
-func (playingCards *PlayingCards) canPeng(whatCard *Card) bool  {
-	return playingCards.cardsInHand.canPeng(whatCard)
+func (playingCards *PlayingCards) canPeng(whatCard *card.Card) bool  {
+	return playingCards.cardsInHand.CanPeng(whatCard)
 }
 
 //检查是否能杠
-func (playingCards *PlayingCards) canGang(whatCard *Card) bool {
-	return playingCards.cardsInHand.canGang(whatCard)
+func (playingCards *PlayingCards) canGang(whatCard *card.Card) bool {
+	return playingCards.cardsInHand.CanGang(whatCard)
 }
 
 
 //初始化cards
-func (playingCards *PlayingCards) initCardsSlice()[]*Cards {
-	cardsSlice := make([]*Cards, Max_CardType)
-	for idx := 0; idx < Max_CardType; idx++ {
-		cardsSlice[idx] = NewCards()
+func (playingCards *PlayingCards) initCardsSlice()[]*card.Cards {
+	cardsSlice := make([]*card.Cards, card.Max_CardType)
+	for idx := 0; idx < card.Max_CardType; idx++ {
+		cardsSlice[idx] = card.NewCards()
 	}
 	return cardsSlice
 }
 
-func (playingCards *PlayingCards) cardsSliceToString(cardsSlice []*Cards) string{
+func (playingCards *PlayingCards) cardsSliceToString(cardsSlice []*card.Cards) string{
 	str := ""
 	for _, cards := range cardsSlice{
 		str += cards.ToString() + "\n"
@@ -123,31 +128,37 @@ func (playingCards *PlayingCards) cardsSliceToString(cardsSlice []*Cards) string
 	return str
 }
 
-func (playingCards *PlayingCards) GetInHandCards() *Cards{
+func (playingCards *PlayingCards) GetInHandCards() *card.Cards{
 	return playingCards.cardsInHand
 }
 
-func (playingCards *PlayingCards) GetAlreadyChiCards(cardType int) *Cards{
-	if cardType < 0 || cardType > Max_CardType {
+func (playingCards *PlayingCards) GetAlreadyChiCards(cardType int) *card.Cards{
+	if cardType < 0 || cardType > card.Max_CardType {
 		return nil
 	}
 	return playingCards.cardsAlreadyChi[cardType]
 }
 
-func (playingCards *PlayingCards) GetAlreadyPengCards(cardType int) *Cards{
-	if cardType < 0 || cardType > Max_CardType {
+func (playingCards *PlayingCards) GetAlreadyPengCards(cardType int) *card.Cards{
+	if cardType < 0 || cardType > card.Max_CardType {
 		return nil
 	}
 	return playingCards.cardsAlreadyPeng[cardType]
 }
 
-func (playingCards *PlayingCards) GetAlreadyGangCards(cardType int) *Cards{
-	if cardType < 0 || cardType > Max_CardType {
+func (playingCards *PlayingCards) GetAlreadyGangCards(cardType int) *card.Cards{
+	if cardType < 0 || cardType > card.Max_CardType {
 		return nil
 	}
 	return playingCards.cardsAlreadyGang[cardType]
 }
 
-func (playingCards *PlayingCards) GetMagicCards() []*Card {
+func (playingCards *PlayingCards) GetMagicCards() []*card.Card {
 	return playingCards.magicCards
+}
+
+func (playingCards *PlayingCards) IsHu (checker hu_checker.Checker) bool {
+	for  {
+		
+	}
 }

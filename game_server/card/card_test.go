@@ -39,7 +39,7 @@ func TestCard(t *testing.T) {
 //	}
 	assert.Equal(t, card1.IsZiCard(), true)
 	assert.Equal(t, card2.IsZiCard(), true)
-	assert.Equal(t, !card3.IsZiCard(), true)
+	assert.Equal(t, !card3.IsZiCard(), false)
 }
 
 func TestCard_IsOk(t *testing.T) {

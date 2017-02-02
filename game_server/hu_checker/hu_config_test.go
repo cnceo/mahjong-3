@@ -1,4 +1,4 @@
-package card
+package hu_checker
 
 import (
 	"testing"
@@ -14,7 +14,7 @@ func TestHuConfigMap_Init(t *testing.T) {
 
 	bytes, err := ioutil.ReadFile("./hu_config.json")
 	content := string(bytes)
-	for key, value := range confMap.config {
+	for key, value := range confMap.data {
 		idx := strings.Index(content, key)
 		assert.Equal(t, idx != -1, true)
 		assert.Equal(t, value.IsEnabled, true)
@@ -23,5 +23,7 @@ func TestHuConfigMap_Init(t *testing.T) {
 	conf, ok := confMap.GetHuConfig("Q1S_HU")
 	assert.Equal(t, conf.Name, "Q1S_HU")
 	assert.Equal(t, ok, true)
+
+	t.Log(confMap.ToString())
 
 }

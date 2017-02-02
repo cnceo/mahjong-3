@@ -1,4 +1,4 @@
-package card
+package hu_checker
 
 import (
 	"io/ioutil"
@@ -12,13 +12,18 @@ type HuConfig struct {
 	IsEnabled	bool        `json:"is_enabled"`	//是否激活
 }
 
+func (config *HuConfig) ToString() string  {
+	bytes, _ := json.Marshal(config)
+	return string(bytes)
+}
+
 type HuConfigMap struct {
-	config 		map[string]*HuConfig
+	data 		map[string]*HuConfig
 }
 
 func NewHuConfigMap() *HuConfigMap {
 	return &HuConfigMap{
-		config :  make(map[string]*HuConfig),
+		data :  make(map[string]*HuConfig),
 	}
 }
 
@@ -39,12 +44,20 @@ func (configMap *HuConfigMap) Init(file string) error {
 	}
 
 	for _, conf := range confLst.Hu {
-		configMap.config[conf.Name] = conf
+		configMap.data[conf.Name] = conf
 	}
 	return nil
 }
 
 func (configMap *HuConfigMap) GetHuConfig(name string) (*HuConfig, bool){
-	value, ok := configMap.config[name]
+	value, ok := configMap.data[name]
 	return value, ok
+}
+
+func (configMap *HuConfigMap) ToString() string {
+	str := ""
+	for _, value := range  configMap.data {
+		str += value.ToString() + "\n"
+	}
+	return str
 }

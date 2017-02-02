@@ -299,6 +299,25 @@ func (cards *Cards) IsAllCardSameType() bool {
 	return true
 }
 
+//获取不同牌的类型的数量
+func (cards *Cards) CalcDiffCardCnt() int {
+	has := make(map[int64]bool)
+	for _, card := range cards.data {
+		has[card.MakeKey()] = true
+	}
+	return len(has)
+}
+
+func (cards *Cards) CalcCardCntAsSameCardType(cardType int) int {
+	cnt := 0
+	tmp := &Card{CardType:cardType}
+	for _, card := range cards.data {
+		if card.SameTypeAs(tmp) {
+			cnt++
+		}
+	}
+	return cnt
+}
 
 //胡2张牌
 func (cards *Cards)isHu2() bool {
