@@ -18,5 +18,5 @@ func (normalHu *NormalHu) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 		return false, normalHu.config
 	}
 
-	return cardsGetter.GetInHandCards().IsHu(), normalHu.config
+	return cardsGetter.IsHu(), normalHu.config
 }

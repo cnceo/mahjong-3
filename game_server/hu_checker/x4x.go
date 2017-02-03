@@ -19,16 +19,15 @@ func (x4x *X4X) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 		return false, x4x.config
 	}
 
-	cardsInHand := cardsGetter.GetInHandCards()
-	inHandFengCardNum := cardsInHand.CalcCardCntAsSameCardType(card.CardType_Feng)
+	inHandFengCardNum := cardsGetter.GetInHandCards(card.CardType_Feng).Len()
 	pengFengCardNum := cardsGetter.GetAlreadyPengCards(card.CardType_Feng).Len()
-	gangFengCardNum := cardsGetter.GetAlreadyGangCards(card.CardType_Feng).Len()
+	gangFengCardNum := cardsGetter.GetAlreadyGangCards(card.CardType_Feng).Len()/4*3
 
-	totalDiffFengCard := inHandFengCardNum/3 + pengFengCardNum/3 + gangFengCardNum/4
+	totalFengNum := inHandFengCardNum + pengFengCardNum + gangFengCardNum
 
-	//3个风牌的碰或杠，1对风牌做眼
-	if totalDiffFengCard == 3 && inHandFengCardNum % 3 == 2 && cardsInHand.IsHu() {
-		return true, x4x.config
+	if totalFengNum != 11 || inHandFengCardNum % 3 != 2 {//不是11张风牌，或者没有一对风牌做将
+		return false, x4x.config
 	}
-	return false, x4x.config
+
+	return cardsGetter.IsHu(), x4x.config
 }

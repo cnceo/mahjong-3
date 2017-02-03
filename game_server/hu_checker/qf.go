@@ -19,44 +19,17 @@ func (qf *QF) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 		return false, qf.config
 	}
 
-	cardsInHand := cardsGetter.GetInHandCards()
-	for _, card := range cardsInHand.Data() {
-		if !card.IsZiCard() {
-			return false, qf.config
-		}
-	}
+	totalCardNum := cardsGetter.GetInHandCards(card.CardType_Feng).Len()
+	totalCardNum += cardsGetter.GetInHandCards(card.CardType_Jian).Len()
 
-	//不能有吃的牌
-	for cardType := card.CardType_Wan; cardType < card.Max_CardType; cardType++{
-		chiCards := cardsGetter.GetAlreadyChiCards(cardType)
-		if chiCards != nil && chiCards.Len() > 0 {
-			return false, qf.config
-		}
-	}
+	totalCardNum += cardsGetter.GetAlreadyPengCards(card.CardType_Feng).Len()
+	totalCardNum += cardsGetter.GetAlreadyPengCards(card.CardType_Jian).Len()
 
-	//不能有碰的非字的牌
-	for cardType := card.CardType_Wan; cardType < card.Max_CardType; cardType++{
-		if card.CardType_Jian == cardType || card.CardType_Feng == cardType {
-			continue
-		}
-		pengCards := cardsGetter.GetAlreadyPengCards(cardType)
-		//fmt.Println("chiCards", chiCards, "cardType :", cardType)
-		if pengCards != nil && pengCards.Len() > 0 {
-			return false, qf.config
-		}
-	}
+	totalCardNum += cardsGetter.GetAlreadyGangCards(card.CardType_Feng).Len()/4*3
+	totalCardNum += cardsGetter.GetAlreadyGangCards(card.CardType_Jian).Len()/4*3
 
-	//不能有杠的非字的牌
-	for cardType := card.CardType_Wan; cardType < card.Max_CardType; cardType++{
-		if card.CardType_Jian == cardType || card.CardType_Feng == cardType {
-			continue
-		}
-		gangCards := cardsGetter.GetAlreadyGangCards(cardType)
-		//fmt.Println("chiCards", chiCards, "cardType :", cardType)
-		if gangCards != nil && gangCards.Len() > 0 {
-			return false, qf.config
-		}
+	if totalCardNum != 14 {//一定还有其他非番牌的牌
+		return false, qf.config
 	}
-
-	return cardsInHand.IsHu(), qf.config
+	return cardsGetter.IsHu(), qf.config
 }

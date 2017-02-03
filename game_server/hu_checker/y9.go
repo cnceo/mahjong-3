@@ -19,10 +19,12 @@ func (y9 *Y9) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 		return false, y9.config
 	}
 
-	cardsInHand := cardsGetter.GetInHandCards()
-	for _, card := range cardsInHand.Data() {
-		if !y9.isY9Card(card){
-			return false, y9.config
+	for cardType := card.CardType_Wan; cardType < card.Max_CardType; cardType++ {
+		cardsInHand := cardsGetter.GetInHandCards(cardType)
+		for _, card := range cardsInHand.Data() {
+			if !y9.isY9Card(card){
+				return false, y9.config
+			}
 		}
 	}
 
@@ -60,7 +62,7 @@ func (y9 *Y9) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 		}
 	}
 
-	return cardsInHand.IsHu(), y9.config
+	return cardsGetter.IsHu(), y9.config
 }
 
 func (y9 *Y9) isY9Card(card* card.Card) bool {

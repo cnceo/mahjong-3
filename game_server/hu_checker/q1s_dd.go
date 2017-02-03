@@ -21,19 +21,22 @@ func (q1sdd *Q1SDD) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 		return false, q1sdd.config
 	}
 
-	cardsInHand := cardsGetter.GetInHandCards()
-	if cardsInHand.Len() == 0  {
-		//fmt.Println(1)
-		return false, q1sdd.config
+	cardType := 0
+	cardTypeCnt := 0
+	for tmpType := card.CardType_Wan; tmpType < card.Max_CardType; tmpType++{
+		cardsInHand := cardsGetter.GetInHandCards(tmpType)
+		if cardsInHand != nil && cardsInHand.Len() > 0 {
+			if cardsInHand.At(0).IsZiCard() {//清一色对对胡不能有字牌
+				return false, q1sdd.config
+			}
+			cardType = tmpType
+			cardTypeCnt++
+			if cardTypeCnt > 1 {//清一色对对胡不能有大于1种以上的牌
+				return false, q1sdd.config
+			}
+		}
 	}
-
-	if cardsInHand.At(0).IsZiCard() || !cardsInHand.IsAllCardSameType() {
-		//fmt.Println(2)
-		return false, q1sdd.config
-	}
-
-	cardType := cardsInHand.At(0).CardType
-
+/*
 	//不能有吃的牌
 	for tmpType := card.CardType_Wan; tmpType < card.Max_CardType; tmpType++{
 		chiCards := cardsGetter.GetAlreadyChiCards(tmpType)
@@ -68,13 +71,22 @@ func (q1sdd *Q1SDD) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 			return false, q1sdd.config
 		}
 	}
+*/
+
+	inHandCardNum := cardsGetter.GetInHandCards(cardType).Len()
+	pengCardNum := cardsGetter.GetAlreadyPengCards(cardType).Len()
+	gangCardNum := cardsGetter.GetAlreadyGangCards(cardType).Len()/4*3
+	totalCardNum := inHandCardNum + pengCardNum + gangCardNum
+	if totalCardNum != 14 {//不足14张肯定不是清一色
+		return false, q1sdd.config
+	}
 
 	//如果全是AAA类型的牌并且能胡的牌的话，那么牌的数量应该是 (cardTypeCnt-1)*3 + 2
-	cardCnt := cardsInHand.CalcDiffCardCnt()
+	cardCnt := cardsGetter.GetInHandCards(cardType).CalcDiffCardCnt()
 	huCardNum := (cardCnt - 1) * 3 + 2
-	//fmt.Println("huCardNum :", huCardNum, "cardsInHand.Len :", cardsInHand.Len(), "cardCnt:", cardCnt)
-	if cardsInHand.Len() == huCardNum && cardsInHand.IsHu() {
-		return true, q1sdd.config
+	if cardsGetter.GetInHandCards(cardType).Len() != huCardNum {//不相等的话手上该类型的牌肯定不是AAA类型和将
+		return false, q1sdd.config
 	}
-	return false, q1sdd.config
+
+	return cardsGetter.IsHu(), q1sdd.config
 }
