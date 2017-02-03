@@ -22,19 +22,22 @@ func (q1s *Q1S) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 		return false, q1s.config
 	}
 
-	cardsInHand := cardsGetter.GetInHandCards()
-	if cardsInHand.Len() == 0  {
-		//fmt.Println(2)
-		return false, q1s.config
+	cardType := 0
+	cardTypeCnt := 0
+	for tmpType := card.CardType_Wan; tmpType < card.Max_CardType; tmpType++{
+		cardsInHand := cardsGetter.GetInHandCards(tmpType)
+		if cardsInHand != nil && cardsInHand.Len() > 0 {
+			if cardsInHand.At(0).IsZiCard() {//清一色不能有字牌
+				return false, q1s.config
+			}
+			cardType = tmpType
+			cardTypeCnt++
+			if cardTypeCnt > 1 {//清一色不能有大于1种以上的牌
+				return false, q1s.config
+			}
+		}
 	}
-
-	if cardsInHand.At(0).IsZiCard() || !cardsInHand.IsAllCardSameType() {
-		//fmt.Println(3)
-		return false, q1s.config
-	}
-
-	cardType := cardsInHand.At(0).CardType
-
+/*
 	//不能有吃非不同类型的牌
 	for tmpType := card.CardType_Wan; tmpType < card.Max_CardType; tmpType++{
 		if cardType == tmpType {
@@ -72,6 +75,15 @@ func (q1s *Q1S) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 			return false, q1s.config
 		}
 	}
+*/
+	inHandCardNum := cardsGetter.GetInHandCards(cardType).Len()
+	chiCardNum := cardsGetter.GetAlreadyChiCards(cardType).Len()
+	pengCardNum := cardsGetter.GetAlreadyPengCards(cardType).Len()
+	gangCardNum := cardsGetter.GetAlreadyGangCards(cardType).Len()/4*3
+	totalCardNum := inHandCardNum + chiCardNum + pengCardNum + gangCardNum
+	if totalCardNum != 14 {//肯定不是清一色
+		return false, q1s.config
+	}
 
-	return cardsInHand.IsHu(), q1s.config
+	return cardsGetter.IsHu(), q1s.config
 }
