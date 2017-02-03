@@ -27,7 +27,7 @@ func TestPlayingCards_Chi(t *testing.T) {
 	chi := playingCards.Chi(&Card{CardType:CardType_Wan, CardNo:5}, group)
 
 	assert.Equal(t, chi, true)
-	assert.Equal(t, playingCards.cardsInHand.Len(), 9)
+	assert.Equal(t, playingCards.cardsInHand[CardType_Wan].Len(), 7)
 	assert.Equal(t, playingCards.cardsAlreadyChi[CardType_Wan].SameAs(group), true)
 
 	groupTong := NewCards()
@@ -37,11 +37,11 @@ func TestPlayingCards_Chi(t *testing.T) {
 	chiTongErr := playingCards.Chi(&Card{CardType:CardType_Tong, CardNo:8}, groupTong)
 
 	assert.Equal(t, chiTongErr, false)
-	assert.Equal(t, playingCards.cardsInHand.Len(), 9)
+	assert.Equal(t, playingCards.cardsInHand[CardType_Tong].Len(), 2)
 
 	chiTongOk := playingCards.Chi(&Card{CardType:CardType_Tong, CardNo:7}, groupTong)
 	assert.Equal(t, chiTongOk, true)
-	assert.Equal(t, playingCards.cardsInHand.Len(), 7)
+	assert.Equal(t, playingCards.cardsInHand[CardType_Tong].Len(), 0)
 	assert.Equal(t, playingCards.cardsAlreadyChi[CardType_Tong].SameAs(groupTong), true)
 
 //	t.Log(playingCards.ToString())
@@ -59,12 +59,12 @@ func TestPlayingCards_Peng(t *testing.T) {
 
 	pengWan := playingCards.Peng(&Card{CardType:CardType_Wan, CardNo:1})
 	assert.Equal(t, pengWan, true)
-	assert.Equal(t, playingCards.cardsInHand.Len(), 3)
+	assert.Equal(t, playingCards.cardsInHand[CardType_Wan].Len(), 1)
 	assert.Equal(t, playingCards.cardsAlreadyPeng[CardType_Wan].Len(), 3)
 
 	pengTong := playingCards.Peng(&Card{CardType:CardType_Tong, CardNo:6})
 	assert.Equal(t, pengTong, true)
-	assert.Equal(t, playingCards.cardsInHand.Len(), 1)
+	assert.Equal(t, playingCards.cardsInHand[CardType_Tong].Len(), 0)
 	assert.Equal(t, playingCards.cardsAlreadyPeng[CardType_Tong].Len(), 3)
 
 	pengJian := playingCards.Peng(&Card{CardType:CardType_Jian, CardNo:Jian_CardNo_Bai})
@@ -85,12 +85,12 @@ func TestPlayingCards_Gang(t *testing.T) {
 
 	gangWan := playingCards.Gang(&Card{CardType:CardType_Wan, CardNo:1})
 	assert.Equal(t, gangWan, true)
-	assert.Equal(t, playingCards.cardsInHand.Len(), 2)
+	assert.Equal(t, playingCards.cardsInHand[CardType_Wan].Len(), 0)
 	assert.Equal(t, playingCards.cardsAlreadyGang[CardType_Wan].Len(), 4)
 
 	gangTong := playingCards.Gang(&Card{CardType:CardType_Tong, CardNo:6})
 	assert.Equal(t, gangTong, false)
-	assert.Equal(t, playingCards.cardsInHand.Len(), 2)
+	assert.Equal(t, playingCards.cardsInHand[CardType_Tong].Len(), 2)
 	assert.Equal(t, playingCards.cardsAlreadyGang[CardType_Tong].Len(), 0)
 
 	gangJian := playingCards.Peng(&Card{CardType:CardType_Jian, CardNo:Jian_CardNo_Bai})

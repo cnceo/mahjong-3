@@ -1,22 +1,74 @@
 package card
 
-var allCards []*Cards
+var OneMagicCandidate 	[]*Cards
+var TwoMagicCandidate 	[]*Cards
+var ThreeMagicCandidate []*Cards
+var FourMagicCandidate 	[]*Cards
 
-func GetAllCards(cardType int) *Cards {
-	if cardType >= Max_CardType || cardType < 0 {
-		return nil
-	}
-	if allCards == nil {
-		allCards = make([]*Cards, Max_CardType)
+func init() {
+	allCards := getAllCards()
+	diffCardNum := allCards.Len()
+	//init OneMagicCandidate
+	OneMagicCandidate = make([]*Cards, 0)
+	for i := 0; i < diffCardNum; i++ {
+		cards := NewCards()
+		cards.AppendCard(allCards.At(i))
+		OneMagicCandidate = append(OneMagicCandidate, cards)
 	}
 
-	if allCards[cardType] == nil {
-		allCards[cardType] = initAllCards(cardType)
+	//init TwoMagicCandidate
+	TwoMagicCandidate = make([]*Cards, 0)
+	for i:=0; i<diffCardNum; i++ {
+		for j:=i; j<diffCardNum; j++ {
+			cards := NewCards()
+			cards.AppendCard(allCards.At(i))
+			cards.AppendCard(allCards.At(j))
+			TwoMagicCandidate = append(TwoMagicCandidate, cards)
+		}
 	}
-	return allCards[cardType]
+
+	//init ThreeMagicCandidate
+	ThreeMagicCandidate = make([]*Cards, 0)
+	for i:=0; i<diffCardNum; i++ {
+		for j:=i; j<diffCardNum; j++ {
+			for k:=j; k<diffCardNum; k++ {
+				cards := NewCards()
+				cards.AppendCard(allCards.At(i))
+				cards.AppendCard(allCards.At(j))
+				cards.AppendCard(allCards.At(k))
+				ThreeMagicCandidate = append(ThreeMagicCandidate, cards)
+			}
+		}
+	}
+
+	//init FourMagicCandidate
+	FourMagicCandidate = make([]*Cards, 0)
+	for i:=0; i<diffCardNum; i++ {
+		for j:=i; j<diffCardNum; j++ {
+			for k:=j; k<diffCardNum; k++ {
+				for l:=k; l<diffCardNum; l++ {
+					cards := NewCards()
+					cards.AppendCard(allCards.At(i))
+					cards.AppendCard(allCards.At(j))
+					cards.AppendCard(allCards.At(k))
+					cards.AppendCard(allCards.At(l))
+					FourMagicCandidate = append(FourMagicCandidate, cards)
+				}
+			}
+		}
+	}
+
 }
 
-func initAllCards(cardType int) *Cards {
+func getAllCards() *Cards {
+	cards := NewCards()
+	for cardType := CardType_Wan; cardType < Max_CardType; cardType++ {
+		cards.AppendCards(genAllCards(cardType))
+	}
+	return cards
+}
+
+func genAllCards(cardType int) *Cards {
 	switch cardType {
 	case CardType_Feng:
 		return generateCards(cardType, Feng_CardNo_Dong, Feng_CardNo_Bei, 1)
