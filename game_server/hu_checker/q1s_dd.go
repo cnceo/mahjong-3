@@ -69,5 +69,12 @@ func (q1sdd *Q1SDD) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 		}
 	}
 
-	return cardsInHand.IsHu(), q1sdd.config
+	//如果全是AAA类型的牌并且能胡的牌的话，那么牌的数量应该是 (cardTypeCnt-1)*3 + 2
+	cardCnt := cardsInHand.CalcDiffCardCnt()
+	huCardNum := (cardCnt - 1) * 3 + 2
+	//fmt.Println("huCardNum :", huCardNum, "cardsInHand.Len :", cardsInHand.Len(), "cardCnt:", cardCnt)
+	if cardsInHand.Len() == huCardNum && cardsInHand.IsHu() {
+		return true, q1sdd.config
+	}
+	return false, q1sdd.config
 }

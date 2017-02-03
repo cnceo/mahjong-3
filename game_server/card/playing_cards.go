@@ -1,8 +1,8 @@
 package card
 
 type PlayingCards struct {
-	magicCards			[]*Card			//可变的牌
 	cardsInHand			*Cards			//手上的牌
+	cardsDiffType		[]*Cards		//手上的牌，分类多存一份
 	cardsAlreadyChi		[]*Cards		//已经吃了的牌
 	cardsAlreadyPeng	[]*Cards		//已经碰了的牌
 	cardsAlreadyGang	[]*Cards		//已经杠了的牌
@@ -11,7 +11,6 @@ type PlayingCards struct {
 func NewPlayingCards() *PlayingCards {
 	cards :=  &PlayingCards{
 	}
-	cards.magicCards = make([]*Card, 0)
 	cards.cardsInHand = NewCards()
 	cards.cardsAlreadyChi = cards.initCardsSlice()
 	cards.cardsAlreadyPeng = cards.initCardsSlice()
@@ -90,6 +89,12 @@ func (playingCards *PlayingCards) ToString() string{
 	return str
 }
 
+/*	计算指定的牌可以吃牌的组合
+*/
+func (playingCards *PlayingCards) ComputeChiGroup(card *Card) []*Cards {
+	return playingCards.cardsInHand.computeChiGroup(card)
+}
+
 //检查是否能吃
 func (playingCards *PlayingCards) canChi(whatCard *Card, whatGroup *Cards) bool {
 	return playingCards.cardsInHand.canChi(whatCard, whatGroup)
@@ -146,8 +151,4 @@ func (playingCards *PlayingCards) GetAlreadyGangCards(cardType int) *Cards{
 		return nil
 	}
 	return playingCards.cardsAlreadyGang[cardType]
-}
-
-func (playingCards *PlayingCards) GetMagicCards() []*Card {
-	return playingCards.magicCards
 }

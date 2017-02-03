@@ -149,6 +149,13 @@
       "desc"  : "门前清",
       "score" : 2,
       "is_enabled" : true
+    },
+
+    {
+      "name"  : "Normal_HU",
+      "desc"  : "平胡",
+      "score" : 2,
+      "is_enabled" : true
     }
 
   ]

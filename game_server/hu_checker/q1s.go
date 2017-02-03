@@ -35,7 +35,7 @@ func (q1s *Q1S) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 
 	cardType := cardsInHand.At(0).CardType
 
-	//不能有吃的牌
+	//不能有吃非不同类型的牌
 	for tmpType := card.CardType_Wan; tmpType < card.Max_CardType; tmpType++{
 		if cardType == tmpType {
 			continue
