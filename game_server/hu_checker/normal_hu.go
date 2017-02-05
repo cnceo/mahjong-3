@@ -1,6 +1,14 @@
 package hu_checker
 
 //平胡
+//大四喜
+func init()  {
+	FactoryInst().register("NORMAL_HU",
+		func(config *HuConfig) Checker {
+			return NewNormalHu(config)
+		},
+	)
+}
 
 type NormalHu struct {
 	config	*HuConfig

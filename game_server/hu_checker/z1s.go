@@ -2,21 +2,28 @@ package hu_checker
 
 import "mahjong/game_server/card"
 
-//全番，全部都是番牌：东南西北、中发白
+//字一色/全番，全部都是番牌：东南西北、中发白
+func init()  {
+	FactoryInst().register("Z1S_HU",
+		func(config *HuConfig) Checker {
+			return NewZ1S(config)
+		},
+	)
+}
 
-type QF struct {
+type Z1S struct {
 	config	*HuConfig
 }
 
-func NewQF(config *HuConfig) *QF {
-	return &QF{
+func NewZ1S(config *HuConfig) *Z1S {
+	return &Z1S{
 		config:	config,
 	}
 }
 
-func (qf *QF) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
-	if !qf.config.IsEnabled {
-		return false, qf.config
+func (z1s *Z1S) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
+	if !z1s.config.IsEnabled {
+		return false, z1s.config
 	}
 
 	totalCardNum := cardsGetter.GetInHandCards(card.CardType_Feng).Len()
@@ -29,7 +36,7 @@ func (qf *QF) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 	totalCardNum += cardsGetter.GetAlreadyGangCards(card.CardType_Jian).Len()/4*3
 
 	if totalCardNum != 14 {//一定还有其他非番牌的牌
-		return false, qf.config
+		return false, z1s.config
 	}
-	return cardsGetter.IsHu(), qf.config
+	return cardsGetter.IsHu(), z1s.config
 }

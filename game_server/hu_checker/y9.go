@@ -3,6 +3,13 @@ package hu_checker
 import "mahjong/game_server/card"
 
 //幺九胡：只能有番牌或者1、9
+func init()  {
+	FactoryInst().register("Y9_HU",
+		func(config *HuConfig) Checker {
+			return NewY9(config)
+		},
+	)
+}
 
 type Y9 struct {
 	config	*HuConfig

@@ -5,6 +5,13 @@ import (
 )
 
 //清一色对对胡
+func init()  {
+	FactoryInst().register("Q1SDD_HU",
+		func(config *HuConfig) Checker {
+			return NewQ1SDD(config)
+		},
+	)
+}
 
 type Q1SDD struct {
 	config	*HuConfig

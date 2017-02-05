@@ -5,6 +5,13 @@ import (
 )
 
 //清1色
+func init()  {
+	FactoryInst().register("Q1S_HU",
+		func(config *HuConfig) Checker {
+			return NewQ1S(config)
+		},
+	)
+}
 
 type Q1S struct {
 	config	*HuConfig

@@ -3,27 +3,19 @@ package hu_checker
 import (
 	"testing"
 	"github.com/bmizerany/assert"
-	"io/ioutil"
-	"strings"
 )
 
-func TestHuConfigMap_Init(t *testing.T) {
-	confMap := NewHuConfigMap()
-	err := confMap.Init("./hu_config.json")
+func TestHuConfig_Init(t *testing.T) {
+	confLst := NewHuConfigList()
+	err := confLst.Init("./hu_config.json")
 	assert.Equal(t, err, nil)
 
-	bytes, err := ioutil.ReadFile("./hu_config.json")
-	content := string(bytes)
-	for key, value := range confMap.data {
-		idx := strings.Index(content, key)
-		assert.Equal(t, idx != -1, true)
-		assert.Equal(t, value.IsEnabled, true)
+	length := len(confLst.HuConfigLst)
+	for idx := 0; idx < length; idx++ {
+		conf := confLst.HuConfigLst[idx]
+		if idx+1 < length-1 {
+			tmp := confLst.HuConfigLst[idx+1]
+			assert.Equal(t, conf.Score >= tmp.Score, true)
+		}
 	}
-
-	conf, ok := confMap.GetHuConfig("Q1S_HU")
-	assert.Equal(t, conf.Name, "Q1S_HU")
-	assert.Equal(t, ok, true)
-
-	t.Log(confMap.ToString())
-
 }

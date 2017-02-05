@@ -3,6 +3,7 @@ package hu_checker
 import (
 	"io/ioutil"
 	"encoding/json"
+	"sort"
 )
 
 type HuConfig struct {
@@ -17,47 +18,44 @@ func (config *HuConfig) ToString() string  {
 	return string(bytes)
 }
 
-type HuConfigMap struct {
-	data 		map[string]*HuConfig
+type HuConfigList struct {
+	HuConfigLst 	[]*HuConfig `json:"hu_config_lst"`
 }
 
-func NewHuConfigMap() *HuConfigMap {
-	return &HuConfigMap{
-		data :  make(map[string]*HuConfig),
+func NewHuConfigList() *HuConfigList {
+	return &HuConfigList{
+		HuConfigLst : make([]*HuConfig, 0),
 	}
 }
 
-func (configMap *HuConfigMap) Init(file string) error {
+func (confLst *HuConfigList) Less(i, j int) bool {
+	if confLst.HuConfigLst[i].Score > confLst.HuConfigLst[j].Score {
+		return false
+	}
+	return true
+}
+
+func (confLst *HuConfigList) Len() int {
+	return len(confLst.HuConfigLst)
+}
+
+func (confLst *HuConfigList) Swap(i, j int) {
+	tmp := confLst.HuConfigLst[i]
+	confLst.HuConfigLst[i] = confLst.HuConfigLst[j]
+	confLst.HuConfigLst[j] = tmp
+}
+
+func (confLst *HuConfigList) Init(file string) error {
 	bytes, err := ioutil.ReadFile(file)
 	if err != nil {
 		return err
 	}
 
-	confLst := &struct {
-		Hu []*HuConfig `json:"hu"`
-	}{
-		Hu : make([]*HuConfig, 0),
-	}
 	err = json.Unmarshal(bytes, confLst)
 	if err != nil {
 		return err
 	}
 
-	for _, conf := range confLst.Hu {
-		configMap.data[conf.Name] = conf
-	}
+	sort.Sort(sort.Reverse(confLst))
 	return nil
-}
-
-func (configMap *HuConfigMap) GetHuConfig(name string) (*HuConfig, bool){
-	value, ok := configMap.data[name]
-	return value, ok
-}
-
-func (configMap *HuConfigMap) ToString() string {
-	str := ""
-	for _, value := range  configMap.data {
-		str += value.ToString() + "\n"
-	}
-	return str
 }

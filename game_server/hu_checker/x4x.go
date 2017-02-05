@@ -3,6 +3,13 @@ package hu_checker
 import "mahjong/game_server/card"
 
 //小四喜
+func init()  {
+	FactoryInst().register("X4X_HU",
+		func(config *HuConfig) Checker {
+			return NewX4X(config)
+		},
+	)
+}
 
 type X4X struct {
 	config	*HuConfig

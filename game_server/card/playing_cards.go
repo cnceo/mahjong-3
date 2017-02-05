@@ -20,6 +20,19 @@ func NewPlayingCards() *PlayingCards {
 	return cards
 }
 
+func (playingCards *PlayingCards) AddCards(cards *Cards) {
+	for _, card := range cards.Data() {
+		playingCards.AddCard(card)
+	}
+}
+
+
+func (playingCards *PlayingCards) DropCards(cards *Cards) {
+	for _, card := range cards.Data() {
+		playingCards.DropCard(card)
+	}
+}
+
 //增加一张牌
 func (playingCards *PlayingCards) AddCard(card *Card) {
 	playingCards.cardsInHand[card.CardType].AddAndSort(card)

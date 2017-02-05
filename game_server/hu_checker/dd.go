@@ -5,6 +5,13 @@ import (
 )
 
 //对对胡
+func init()  {
+	FactoryInst().register("DD_HU",
+		func(config *HuConfig) Checker {
+			return NewDD(config)
+		},
+	)
+}
 
 type DD struct {
 	config	*HuConfig

@@ -3,10 +3,7 @@ package play
 import (
 	"mahjong/game_server/card"
 	"mahjong/game_server/hu_checker"
-)
-
-const (
-	MAX_MAGIC_NUM = 4
+	"fmt"
 )
 
 type Player struct {
@@ -64,16 +61,18 @@ func (player *Player) IsHu() (isHu bool, desc string, score int) {
 				return isHu, conf.Desc, conf.Score
 			}
 		} else {
-			//TODO 支持赖子牌的胡牌计算
-			for i := 0; i<magicLen; i++ {
-				for _, card := range card.GetAllCards().Data() {
-					player.playingCards.AddCard(card)
-					isHu, conf := checker.IsHu(player.playingCards)
-					if isHu {
-						return isHu, conf.Desc, conf.Score
-					} else {
-						player.playingCards.DropCard(card)
-					}
+			//支持赖子牌的胡牌计算, 暴力穷举法，把赖子牌的所有候选集一个个试，胜在够简单
+			candidate := player.computeMagicCandidate()
+			tryCnt := 0
+			for _, cards := range candidate {
+				tryCnt++
+				player.playingCards.AddCards(cards)
+				isHu, conf := checker.IsHu(player.playingCards)
+				if isHu {
+					fmt.Println("tryCnt :", tryCnt, ", cards :", cards.ToString())
+					return isHu, conf.Desc, conf.Score
+				} else {
+					player.playingCards.DropCards(cards)
 				}
 			}
 		}
@@ -88,20 +87,19 @@ func (player *Player) ToString() string{
 
 func (player *Player) computeMagicCandidate() []*card.Cards {
 	magicNum := len(player.magicCards)
-	if magicNum == 0 {
+	switch magicNum {
+	case 0:
+		return nil
+	case 1:
+		return card.OneMagicCandidate
+	case 2:
+		return card.TwoMagicCandidate
+	case 3:
+		return card.ThreeMagicCandidate
+	case 4:
+		return card.FourMagicCandidate
+	default:
 		return nil
 	}
-	allCards := card.GetAllCards()
-	allCardsLen := allCards.Len()
-	for i := 0; i < allCardsLen; i++ {
-		for j := 0; j < allCardsLen; j++ {
-			for k := 0; k<allCardsLen ; k++ {
-				for l := 0 ; l<allCardsLen ;  {
-
-				}
-			}
-
-		}
-	}
-	return magicCards
+	return nil
 }

@@ -3,6 +3,13 @@ package hu_checker
 import "mahjong/game_server/card"
 
 //大三元
+func init()  {
+	FactoryInst().register("D3Y_HU",
+		func(config *HuConfig) Checker {
+			return NewD3Y(config)
+		},
+	)
+}
 
 type D3Y struct {
 	config	*HuConfig
