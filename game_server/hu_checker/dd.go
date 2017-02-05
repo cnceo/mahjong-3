@@ -23,6 +23,10 @@ func NewDD(config *HuConfig) *DD {
 	}
 }
 
+func (dd *DD) GetConfig() *HuConfig {
+	return dd.config
+}
+
 func (dd *DD) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 	if !dd.config.IsEnabled {
 		return false, dd.config

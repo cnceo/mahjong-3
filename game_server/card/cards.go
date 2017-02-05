@@ -301,9 +301,6 @@ func (cards *Cards) IsAllCardSameType() bool {
 
 //获取不同牌的类型的数量
 func (cards *Cards) CalcDiffCardCnt() int {
-	if cards.Len() == 0 {
-		return 0
-	}
 	has := make(map[int64]bool)
 	for _, card := range cards.data {
 		has[card.MakeKey()] = true

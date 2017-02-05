@@ -20,6 +20,10 @@ func NewNormalHu(config *HuConfig) *NormalHu {
 	}
 }
 
+func (normalHu *NormalHu) GetConfig() *HuConfig {
+	return normalHu.config
+}
+
 func (normalHu *NormalHu) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 	if !normalHu.config.IsEnabled {
 		//fmt.Println(1)

@@ -2,6 +2,8 @@ package hu_checker
 
 import (
 	"strings"
+	//"mahjong/game_server/log"
+	"mahjong/game_server/log"
 )
 
 type NewCheckerFunc func(conf *HuConfig) Checker
@@ -28,6 +30,12 @@ func (factory *Factory) GetAllChecker() []Checker {
 	return factory.allChecker
 }
 
+func (factory *Factory) DebugAllChecker() {
+	for _, checker := range factory.allChecker {
+		log.Debug("factory's checker :", checker, checker.GetConfig())
+	}
+}
+
 func (factory *Factory) createChecker(conf *HuConfig) Checker {
 	name := strings.ToUpper(conf.Name)
 	newCheckerFunc, ok := factory.newCheckerFunc[name]
@@ -39,9 +47,13 @@ func (factory *Factory) createChecker(conf *HuConfig) Checker {
 }
 
 func (factory *Factory) Init(conf string) error {
+	if factory.huConfigLst.Len() > 0 {
+		return nil
+	}
 	err := factory.huConfigLst.Init(conf)
+	//log.Debug("after conf lst init")
+	//factory.DebugAllChecker()
 	for _, conf := range factory.huConfigLst.HuConfigLst {
-		//fmt.Println(conf.ToString())
 		if !conf.IsEnabled {
 			continue
 		}
@@ -49,7 +61,6 @@ func (factory *Factory) Init(conf string) error {
 		if checker == nil {
 			continue
 		}
-		//fmt.Println("create checker :", conf.Desc)
 		factory.allChecker = append(factory.allChecker, checker)
 	}
 	return err

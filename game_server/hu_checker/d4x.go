@@ -21,6 +21,10 @@ func NewD4X(config *HuConfig) *D4X {
 	}
 }
 
+func (d4x *D4X) GetConfig() *HuConfig {
+	return d4x.config
+}
+
 func (d4x *D4X) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 	if !d4x.config.IsEnabled {
 		return false, d4x.config

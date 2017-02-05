@@ -21,6 +21,10 @@ func NewX4X(config *HuConfig) *X4X {
 	}
 }
 
+func (x4x *X4X) GetConfig() *HuConfig {
+	return x4x.config
+}
+
 func (x4x *X4X) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 	if !x4x.config.IsEnabled {
 		return false, x4x.config

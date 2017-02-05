@@ -3,7 +3,7 @@ package play
 import (
 	"mahjong/game_server/card"
 	"mahjong/game_server/hu_checker"
-	"fmt"
+	"mahjong/game_server/log"
 )
 
 type Player struct {
@@ -54,10 +54,10 @@ func (player *Player) Drop(card *card.Card) bool {
 func (player *Player) IsHu() (isHu bool, desc string, score int) {
 	magicLen := len(player.magicCards)
 	for _, checker := range player.huChecker {
-
 		if magicLen == 0 {
 			isHu, conf := checker.IsHu(player.playingCards)
 			if isHu {
+				log.Debug("checker :", checker.GetConfig().ToString(), "succ")
 				return isHu, conf.Desc, conf.Score
 			}
 		} else {
@@ -69,13 +69,15 @@ func (player *Player) IsHu() (isHu bool, desc string, score int) {
 				player.playingCards.AddCards(cards)
 				isHu, conf := checker.IsHu(player.playingCards)
 				if isHu {
-					fmt.Println("tryCnt :", tryCnt, ", cards :", cards.ToString())
+					log.Debug("checker :", checker.GetConfig().ToString(), "succ, tryMagicCnt :", tryCnt, ",cards:", cards.ToString())
+					log.Debug("tryCnt :", tryCnt, ", cards :", cards.ToString())
 					return isHu, conf.Desc, conf.Score
 				} else {
 					player.playingCards.DropCards(cards)
 				}
 			}
 		}
+		log.Debug("checker :", checker.GetConfig().ToString(), "failed")
 	}
 
 	return false, "", 0
@@ -102,4 +104,10 @@ func (player *Player) computeMagicCandidate() []*card.Cards {
 		return nil
 	}
 	return nil
+}
+
+func (player *Player) DebugAllChecker() {
+	for _, checker := range player.huChecker {
+		log.Debug("player's checker :", checker.GetConfig())
+	}
 }

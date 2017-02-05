@@ -23,6 +23,10 @@ func NewQ1S(config *HuConfig) *Q1S {
 	}
 }
 
+func (q1s *Q1S) GetConfig() *HuConfig {
+	return q1s.config
+}
+
 func (q1s *Q1S) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 	if !q1s.config.IsEnabled {
 		//fmt.Println(1)

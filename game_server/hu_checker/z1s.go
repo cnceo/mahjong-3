@@ -21,6 +21,10 @@ func NewZ1S(config *HuConfig) *Z1S {
 	}
 }
 
+func (z1s *Z1S) GetConfig() *HuConfig {
+	return z1s.config
+}
+
 func (z1s *Z1S) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 	if !z1s.config.IsEnabled {
 		return false, z1s.config

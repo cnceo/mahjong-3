@@ -21,6 +21,10 @@ func NewY9(config *HuConfig) *Y9 {
 	}
 }
 
+func (y9 *Y9) GetConfig() *HuConfig {
+	return y9.config
+}
+
 func (y9 *Y9) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 	if !y9.config.IsEnabled {
 		return false, y9.config

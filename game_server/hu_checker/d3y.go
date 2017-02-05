@@ -21,6 +21,10 @@ func NewD3Y(config *HuConfig) *D3Y {
 	}
 }
 
+func (d3y *D3Y) GetConfig() *HuConfig {
+	return d3y.config
+}
+
 func (d3y *D3Y) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 	if !d3y.config.IsEnabled {
 		return false, d3y.config
