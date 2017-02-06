@@ -1,0 +1,13 @@
+{
+  "need_player_num" : 4,
+  "without_feng_card" : false,
+  "without_jian_card" : false,
+  "without_hua_card" : false,
+  "without_wan_card" : false,
+  "without_tiao_card" : false,
+  "without_tong_card" : false,
+  "without_chi" : false,
+  "without_peng" : false,
+  "without_gang" : false,
+  "max_magic_card_num" : 4
+}
