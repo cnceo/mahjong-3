@@ -11,6 +11,7 @@ func TestHuConfig_Init(t *testing.T) {
 	assert.Equal(t, err, nil)
 
 	length := len(confLst.HuConfigLst)
+	t.Log(length)
 	for idx := 0; idx < length; idx++ {
 		conf := confLst.HuConfigLst[idx]
 		if idx+1 < length-1 {

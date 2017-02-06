@@ -1,10 +1,10 @@
 package hu_checker
 
 import (
-	"io/ioutil"
 	"encoding/json"
 	"sort"
 	"mahjong/game_server/log"
+	"mahjong/game_server/util"
 )
 
 type HuConfig struct {
@@ -60,17 +60,9 @@ func (confLst *HuConfigList) Swap(i, j int) {
 }
 
 func (confLst *HuConfigList) Init(file string) error {
-	bytes, err := ioutil.ReadFile(file)
-	if err != nil {
-		return err
-	}
-	err = json.Unmarshal(bytes, confLst)
-	if err != nil {
-		return err
-	}
-
+	err := util.InitJsonConfig(file, confLst)
 	sort.Sort(sort.Reverse(confLst))
-	return nil
+	return err
 }
 
 func (confLst *HuConfigList) Debug() {
