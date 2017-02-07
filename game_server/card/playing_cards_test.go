@@ -98,3 +98,16 @@ func TestPlayingCards_Gang(t *testing.T) {
 	assert.Equal(t, gangJian, false)
 	//t.Log(playingCards.ToString())
 }
+
+func TestPlayingCards_Reset(t *testing.T) {
+	playingCards := NewPlayingCards()
+	playingCards.AddCard(&Card{CardType:CardType_Wan, CardNo:1})
+	playingCards.AddCard(&Card{CardType:CardType_Wan, CardNo:1})
+	playingCards.AddCard(&Card{CardType:CardType_Wan, CardNo:1})
+
+	t.Log(playingCards.GetInHandCards(CardType_Wan).ToString())
+	assert.Equal(t, playingCards.GetInHandCards(CardType_Wan).Len(), 3)
+	playingCards.Reset()
+	assert.Equal(t, playingCards.GetInHandCards(CardType_Wan).Len(), 0)
+	t.Log(playingCards.GetInHandCards(CardType_Wan).ToString())
+}

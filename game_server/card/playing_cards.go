@@ -20,6 +20,13 @@ func NewPlayingCards() *PlayingCards {
 	return cards
 }
 
+func (playingCards *PlayingCards) Reset() {
+	playingCards.resetCardsSlice(playingCards.cardsInHand)
+	playingCards.resetCardsSlice(playingCards.cardsAlreadyChi)
+	playingCards.resetCardsSlice(playingCards.cardsAlreadyPeng)
+	playingCards.resetCardsSlice(playingCards.cardsAlreadyGang)
+}
+
 func (playingCards *PlayingCards) AddCards(cards *Cards) {
 	for _, card := range cards.Data() {
 		playingCards.AddCard(card)
@@ -131,6 +138,12 @@ func (playingCards *PlayingCards) initCardsSlice()[]*Cards {
 		cardsSlice[idx] = NewCards()
 	}
 	return cardsSlice
+}
+
+func (playingCards *PlayingCards) resetCardsSlice(cardsSlice []*Cards) {
+	for _, cards := range cardsSlice {
+		cards.Clear()
+	}
 }
 
 func (playingCards *PlayingCards) cardsSliceToString(cardsSlice []*Cards) string{

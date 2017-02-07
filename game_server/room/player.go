@@ -7,10 +7,11 @@ import (
 )
 
 type Player struct {
-	RoomId				int64
-	magicCards			[]*card.Card		//赖子牌
-	playingCards 		*card.PlayingCards	//
-	huChecker			[]hu_checker.Checker
+	id				int64			// 玩家id
+	room			*Room			// 玩家所在的房间
+	magicCards		[]*card.Card	// 玩家手上的赖子牌
+	playingCards 	*card.PlayingCards	//
+	huChecker		[]hu_checker.Checker
 }
 
 func NewPlayer(huChecker []hu_checker.Checker) *Player {
@@ -20,6 +21,11 @@ func NewPlayer(huChecker []hu_checker.Checker) *Player {
 		huChecker:		huChecker,
 	}
 	return player
+}
+
+func (player *Player) ResetCards() {
+	player.magicCards = player.magicCards[0:0]
+	player.playingCards.Reset()
 }
 
 func (player *Player) AddMagicCard(card *card.Card) {
@@ -85,15 +91,17 @@ func (player *Player) IsHu() (isHu bool, desc string, score int) {
 }
 
 func (player *Player) EnterRoom(room *Room) bool{
-	succ := room.AddPlayer(player)
+	result := make(chan bool, 1)
+	room.Enter(player, result)
+	succ := <-result
 	if succ {
-		player.RoomId = room.Id
+		player.room = room
 	}
 	return succ
 }
 
 func (player *Player) LeaveRoom() {
-	player.RoomId = 0
+	player.room = nil
 }
 
 func (player *Player) ToString() string{
@@ -117,6 +125,16 @@ func (player *Player) computeMagicCandidate() []*card.Cards {
 		return nil
 	}
 	return nil
+}
+
+//别的玩家打出一张牌时触发
+func (player *Player) OnOtherDropCard(other *Player, card *card.Card) {
+	//TODO
+}
+
+//摸到一张牌时触发
+func (player *Player) OnGetCard(card *card.Card) {
+	//TODO
 }
 
 func (player *Player) DebugAllChecker() {

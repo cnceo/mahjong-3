@@ -1,40 +1,27 @@
 package card
 
-type Option struct {
-	generater  []PoolGenerater
-}
-
-func newOption() *Option {
-	return &Option{
-		generater:	make([]PoolGenerater, 0),
-	}
-}
-
-type OptionFunc func(opt *Option)
-
-
 type Pool struct {
-	opt   *Option
 	cards *Cards
+	generaters  []PoolGenerater
 }
 
-func NewPool(opts ...OptionFunc) *Pool {
+func NewPool() *Pool {
 	pool := &Pool{
-		opt:	newOption(),
 		cards:	NewCards(),
+		generaters:	make([]PoolGenerater, 0),
 	}
-	for _, opt := range opts {
-		opt(pool.opt)
-	}
-
-	pool.generate()
 	return pool
 }
 
 func (pool *Pool) generate() {
-	for _, generater := range pool.opt.generater {
+	for _, generater := range pool.generaters {
 		pool.cards.AppendCards(generater.Generate())
 	}
+}
+
+func (pool *Pool) ReGenerate() {
+	pool.cards.Clear()
+	pool.generate()
 }
 
 func (pool *Pool) GetCard() *Card {
@@ -43,4 +30,28 @@ func (pool *Pool) GetCard() *Card {
 
 func (pool *Pool) GetCardNum() int {
 	return pool.cards.Len()
+}
+
+func (pool *Pool) AddFengGenerater() {
+	pool.generaters = append(pool.generaters, &FengGenerater{})
+}
+
+func (pool *Pool) AddJianGenerater() {
+	pool.generaters = append(pool.generaters, &JianGenerater{})
+}
+
+func (pool *Pool) AddHuaGenerater() {
+	pool.generaters = append(pool.generaters, &HuaGenerater{})
+}
+
+func (pool *Pool) AddWanGenerater() {
+	pool.generaters = append(pool.generaters, &WanGenerater{})
+}
+
+func (pool *Pool) AddTiaoGenerater() {
+	pool.generaters = append(pool.generaters, &TiaoGenerater{})
+}
+
+func (pool *Pool) AddTongGenerater() {
+	pool.generaters = append(pool.generaters, &TongGenerater{})
 }

@@ -3,14 +3,16 @@ package card
 import "testing"
 
 func TestSort(t *testing.T) {
-	pool := NewPool(
-		WithFengCard(),
-		WithJianCard(),
-		WithHuaCard(),
-		WithWanCard(),
-		WithTiaoCard(),
-		WithTongCard(),
-	)
+	pool := NewPool()
+
+	pool.AddFengGenerater()
+	pool.AddJianGenerater()
+	pool.AddHuaGenerater()
+	pool.AddWanGenerater()
+	pool.AddTiaoGenerater()
+	pool.AddTongGenerater()
+
+	pool.ReGenerate()
 
 	cards := NewCards()
 	for i:=0; i<13; i++ {

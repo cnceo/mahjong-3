@@ -1,13 +1,15 @@
 {
   "need_player_num" : 4,
-  "without_feng_card" : false,
-  "without_jian_card" : false,
-  "without_hua_card" : false,
-  "without_wan_card" : false,
-  "without_tiao_card" : false,
-  "without_tong_card" : false,
-  "without_chi" : false,
-  "without_peng" : false,
-  "without_gang" : false,
-  "max_magic_card_num" : 4
+  "With_feng_card" : true,
+  "With_jian_card" : true,
+  "With_hua_card" : true,
+  "With_wan_card" : true,
+  "With_tiao_card" : true,
+  "With_tong_card" : true,
+  "With_chi" : true,
+  "With_peng" : true,
+  "With_gang" : true,
+  "has_magic_card" : true,
+  "wait_player_enter_room_timeout" : 300,
+  "wait_player_operate_timeout" : 15
 }

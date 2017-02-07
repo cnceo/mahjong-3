@@ -6,15 +6,16 @@ import (
 )
 
 func TestPool(t *testing.T) {
-	pool := NewPool(
-		WithFengCard(),
-		WithJianCard(),
-		WithHuaCard(),
-		WithWanCard(),
-		WithTiaoCard(),
-		WithTongCard(),
-	)
+	pool := NewPool()
 
+	pool.AddFengGenerater()
+	pool.AddJianGenerater()
+	pool.AddHuaGenerater()
+	pool.AddWanGenerater()
+	pool.AddTiaoGenerater()
+	pool.AddTongGenerater()
+
+	pool.ReGenerate()
 	/*
 	for _, card := range pool.cards{
 		t.Log(card.Name())
