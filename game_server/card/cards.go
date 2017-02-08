@@ -48,6 +48,9 @@ func (cards *Cards) Less(i, j int) bool {
 
 //交换索引为，j的两个数据
 func (cards *Cards) Swap(i, j int) {
+	if i == j {
+		return
+	}
 	length := cards.Len()
 	if i >= length || j >= length {
 		return
@@ -91,6 +94,16 @@ func (cards *Cards) TakeWay(drop *Card) bool {
 		}
 	}
 	return false
+}
+
+//取走第一张牌
+func (cards *Cards) PopFront() *Card {
+	if cards.Len() == 0 {
+		return nil
+	}
+	card := cards.At(0)
+	cards.data = cards.data[1:]
+	return card
 }
 
 //随机取走一张牌

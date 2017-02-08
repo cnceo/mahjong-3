@@ -2,7 +2,7 @@ package hu_checker
 
 import (
 	"mahjong/game_server/card"
-	"mahjong/game_server/log"
+	//"mahjong/game_server/log"
 )
 
 //清一色对对胡
@@ -56,7 +56,7 @@ func (q1sdd *Q1SDD) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 	gangCardNum := cardsGetter.GetAlreadyGangCards(cardType).Len()/4*3
 	totalCardNum := inHandCardNum + pengCardNum + gangCardNum
 	if totalCardNum != 14 {//不足14张肯定不是清一色
-		log.Debug("q1sdd totalCardNum:", totalCardNum)
+		//log.Debug("q1sdd totalCardNum:", totalCardNum)
 		return false, q1sdd.config
 	}
 
@@ -64,7 +64,7 @@ func (q1sdd *Q1SDD) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 	cardCnt := cardsGetter.GetInHandCards(cardType).CalcDiffCardCnt()
 	huCardNum := (cardCnt - 1) * 3 + 2
 	if cardsGetter.GetInHandCards(cardType).Len() != huCardNum {//不相等的话手上该类型的牌肯定不是AAA类型和将
-		log.Debug("card in hand is not hu card num, huCardNum :", huCardNum)
+		//log.Debug("card in hand is not hu card num, huCardNum :", huCardNum)
 		return false, q1sdd.config
 	}
 

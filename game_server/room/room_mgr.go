@@ -19,12 +19,12 @@ func (mgr *RoomMgr) Init(conf string) error{
 
 func (mgr *RoomMgr) CreateRoom() *Room {
 	room := NewRoom(mgr.config)
-	mgr.rooms[room.Id] = room
+	mgr.rooms[room.id] = room
 	room.AddObserver(mgr)
 	room.Start()
 	return room
 }
 
 func (mgr *RoomMgr) OnRoomClose(room *Room) {
-	delete(mgr.rooms, room.Id)
+	delete(mgr.rooms, room.id)
 }

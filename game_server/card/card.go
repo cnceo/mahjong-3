@@ -142,6 +142,35 @@ func (card *Card) Name() string {
 	return name
 }
 
+func (card *Card)Next() *Card {
+	if card == nil {
+		return nil
+	}
+	newCard := &Card{
+		CardType: card.CardType,
+		CardNo: card.CardNo + 1,
+	}
+	switch card.CardType {
+	case CardType_Feng:
+		if card.CardNo == Feng_CardNo_Bei {
+			newCard.CardNo = Feng_CardNo_Dong
+		}
+	case CardType_Jian:
+		if card.CardNo == Jian_CardNo_Bai {
+			newCard.CardNo = Jian_CardNo_Zhong
+		}
+	case CardType_Hua:
+		if card.CardNo == Hua_CardNo_Ju {
+			newCard.CardNo = Hua_CardNo_Chun
+		}
+	case CardType_Tiao, CardType_Tong, CardType_Wan:
+		if card.CardNo == 9 {
+			newCard.CardNo = 1
+		}
+	}
+	return newCard
+}
+
 func cardNameMap() map[int]map[int]string {
 	return map[int]map[int]string{
 		CardType_Feng: {

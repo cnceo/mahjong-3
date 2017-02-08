@@ -2,6 +2,7 @@ package card
 
 type PlayingCards struct {
 	cardsInHand			[]*Cards		//手上的牌
+	magicCards			*Cards			//手上的赖子牌
 	cardsAlreadyChi		[]*Cards		//已经吃了的牌
 	cardsAlreadyPeng	[]*Cards		//已经碰了的牌
 	cardsAlreadyGang	[]*Cards		//已经杠了的牌
@@ -11,6 +12,7 @@ type PlayingCards struct {
 
 func NewPlayingCards() *PlayingCards {
 	cards :=  &PlayingCards{
+		magicCards:			NewCards(),
 		cardsForCheckHu:	NewCards(),
 	}
 	cards.cardsInHand = cards.initCardsSlice()
@@ -22,6 +24,7 @@ func NewPlayingCards() *PlayingCards {
 
 func (playingCards *PlayingCards) Reset() {
 	playingCards.resetCardsSlice(playingCards.cardsInHand)
+	playingCards.magicCards.Clear()
 	playingCards.resetCardsSlice(playingCards.cardsAlreadyChi)
 	playingCards.resetCardsSlice(playingCards.cardsAlreadyPeng)
 	playingCards.resetCardsSlice(playingCards.cardsAlreadyGang)
@@ -43,6 +46,11 @@ func (playingCards *PlayingCards) DropCards(cards *Cards) {
 //增加一张牌
 func (playingCards *PlayingCards) AddCard(card *Card) {
 	playingCards.cardsInHand[card.CardType].AddAndSort(card)
+}
+
+//增加一张赖子牌
+func (playingCards *PlayingCards) AddMagicCard(card *Card) {
+	playingCards.magicCards.AppendCard(card)
 }
 
 //丢弃一张牌
@@ -194,4 +202,8 @@ func (playingCards *PlayingCards) IsHu() bool {
 
 	playingCards.cardsForCheckHu.Sort()
 	return playingCards.cardsForCheckHu.IsHu()
+}
+
+func (playingCards *PlayingCards) GetMagicCardsLen() int{
+	return playingCards.magicCards.Len()
 }

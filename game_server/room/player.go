@@ -9,14 +9,12 @@ import (
 type Player struct {
 	id				int64			// 玩家id
 	room			*Room			// 玩家所在的房间
-	magicCards		[]*card.Card	// 玩家手上的赖子牌
-	playingCards 	*card.PlayingCards	//
+	playingCards 	*card.PlayingCards	//玩家手上的牌
 	huChecker		[]hu_checker.Checker
 }
 
 func NewPlayer(huChecker []hu_checker.Checker) *Player {
 	player :=  &Player{
-		magicCards: 	make([]*card.Card, 0),
 		playingCards:	card.NewPlayingCards(),
 		huChecker:		huChecker,
 	}
@@ -24,12 +22,11 @@ func NewPlayer(huChecker []hu_checker.Checker) *Player {
 }
 
 func (player *Player) ResetCards() {
-	player.magicCards = player.magicCards[0:0]
 	player.playingCards.Reset()
 }
 
 func (player *Player) AddMagicCard(card *card.Card) {
-	player.magicCards = append(player.magicCards, card)
+	player.playingCards.AddMagicCard(card)
 }
 
 func (player *Player) AddCard(card *card.Card) {
@@ -59,7 +56,7 @@ func (player *Player) Drop(card *card.Card) bool {
 }
 
 func (player *Player) IsHu() (isHu bool, desc string, score int) {
-	magicLen := len(player.magicCards)
+	magicLen := player.playingCards.GetMagicCardsLen()
 	for _, checker := range player.huChecker {
 		if magicLen == 0 {
 			isHu, conf := checker.IsHu(player.playingCards)
@@ -109,7 +106,7 @@ func (player *Player) ToString() string{
 }
 
 func (player *Player) computeMagicCandidate() []*card.Cards {
-	magicNum := len(player.magicCards)
+	magicNum := player.playingCards.GetMagicCardsLen()
 	switch magicNum {
 	case 0:
 		return nil

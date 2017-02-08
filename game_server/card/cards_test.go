@@ -1,6 +1,9 @@
 package card
 
-import "testing"
+import (
+	"testing"
+	"github.com/bmizerany/assert"
+)
 
 func TestSort(t *testing.T) {
 	pool := NewPool()
@@ -427,4 +430,13 @@ func TestCards_IsHuSpe(t *testing.T) {
 	if  !hu5.IsHu() || !hu8.IsHu() || !hu11.IsHu() || !hu14.IsHu(){
 		t.Fatal("all should be hu")
 	}
+}
+
+func TestCards_PopFront(t *testing.T) {
+	card := &Card{CardType:CardType_Tiao, CardNo:4}
+	cards := NewCards()
+	cards.AppendCard(card)
+	card1 := cards.PopFront()
+	assert.Equal(t, card, card1)
+	assert.Equal(t, cards.Len(), 0)
 }
