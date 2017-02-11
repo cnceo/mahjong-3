@@ -106,6 +106,16 @@ func (cards *Cards) PopFront() *Card {
 	return card
 }
 
+//取走最后一张牌
+func (cards *Cards) PopTail() *Card {
+	if cards.Len() == 0 {
+		return nil
+	}
+	card := cards.At(cards.Len()-1)
+	cards.data = cards.data[:cards.Len()-1]
+	return card
+}
+
 //随机取走一张牌
 func (cards *Cards) RandomTakeWayOne() *Card {
 	length := cards.Len()

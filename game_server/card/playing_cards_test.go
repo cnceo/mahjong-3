@@ -107,6 +107,9 @@ func TestPlayingCards_Reset(t *testing.T) {
 
 	t.Log(playingCards.GetInHandCards(CardType_Wan).ToString())
 	assert.Equal(t, playingCards.GetInHandCards(CardType_Wan).Len(), 3)
+
+	playingCards.AddCard(&Card{CardType:CardType_Feng, CardNo:Feng_CardNo_Bei})
+	assert.Equal(t, playingCards.DropTail().Name(), "北")
 	playingCards.Reset()
 	assert.Equal(t, playingCards.GetInHandCards(CardType_Wan).Len(), 0)
 	t.Log(playingCards.GetInHandCards(CardType_Wan).ToString())

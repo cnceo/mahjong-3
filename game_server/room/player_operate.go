@@ -3,10 +3,12 @@ package room
 import "mahjong/game_server/card"
 
 const (
-	PlayerOperateChi 	int = iota + 1
+	PlayerOperateDrop		int = iota + 1
+	PlayerOperateChi
 	PlayerOperatePeng
 	PlayerOperateGang
-	PlayerOperateHu
+	PlayerOperateZiMo
+	PlayerOperateDianPao
 )
 
 type PlayerOperateChiData struct {
@@ -14,14 +16,21 @@ type PlayerOperateChiData struct {
 	Group	*card.Cards
 }
 
-type PlayerOperate struct {
+type PlayerOperate struct {//玩家操作
 	Op			int
 	Data		interface{}
 	Operator	*Player				//操作者
-	FromWho		*Player				//card来源于谁，比如杠，碰，吃，胡，来源于哪位对手或者自己
 }
 
-func NewPlayerOperateChi(card *card.Card, group *card.Cards, operator, from *Player) *PlayerOperate {
+func NewPlayerOperateDrop(card *card.Card, operator *Player) *PlayerOperate {
+	return newPlayerOperate(
+		PlayerOperateChi,
+		card,
+		operator,
+	)
+}
+
+func NewPlayerOperateChi(card *card.Card, group *card.Cards, operator *Player) *PlayerOperate {
 	return newPlayerOperate(
 		PlayerOperateChi,
 		&PlayerOperateChiData{
@@ -29,27 +38,29 @@ func NewPlayerOperateChi(card *card.Card, group *card.Cards, operator, from *Pla
 			Group:	group,
 		},
 		operator,
-		from,
 	)
 }
 
-func NewPlayerOperatePeng(card *card.Card, operator, from *Player) *PlayerOperate {
-	return newPlayerOperate(PlayerOperatePeng, card, operator, from)
+func NewPlayerOperatePeng(card *card.Card, operator *Player) *PlayerOperate {
+	return newPlayerOperate(PlayerOperatePeng, card, operator)
 }
 
-func NewPlayerOperateGang(card *card.Card, operator, from *Player) *PlayerOperate {
-	return newPlayerOperate(PlayerOperateGang, card, operator, from)
+func NewPlayerOperateGang(card *card.Card, operator *Player) *PlayerOperate {
+	return newPlayerOperate(PlayerOperateGang, card, operator)
 }
 
-func NewPlayerOperateHu(card *card.Card, operator, from *Player) *PlayerOperate {
-	return newPlayerOperate(PlayerOperateHu, card, operator, from)
+func NewPlayerOperateDianPao(card *card.Card, operator *Player) *PlayerOperate {
+	return newPlayerOperate(PlayerOperateDianPao, card, operator)
 }
 
-func newPlayerOperate(op int, data interface{}, operator, from *Player) *PlayerOperate{
+func NewPlayerOperateZiMo(operator *Player) *PlayerOperate {
+	return newPlayerOperate(PlayerOperateZiMo, nil, operator)
+}
+
+func newPlayerOperate(op int, data interface{}, operator *Player) *PlayerOperate{
 	return &PlayerOperate{
-		Operator: operator,
-		FromWho: from,
 		Op:	op,
 		Data: data,
+		Operator: operator,
 	}
 }

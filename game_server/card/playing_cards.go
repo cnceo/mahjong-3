@@ -58,6 +58,16 @@ func (playingCards *PlayingCards) DropCard(card *Card) bool {
 	return playingCards.cardsInHand[card.CardType].TakeWay(card)
 }
 
+func (playingCards *PlayingCards) DropTail() *Card {
+	for cardType := CardType_Jian; cardType >= CardType_Wan; cardType-- {
+		cards := playingCards.cardsInHand[cardType]
+		if cards.Len() > 0 {
+			return cards.PopTail()
+		}
+	}
+	return nil
+}
+
 //吃牌，要吃whatCard，以及吃哪个组合whatGroup
 func (playingCards *PlayingCards) Chi(whatCard *Card, whatGroup *Cards) bool {
 	if !playingCards.canChi(whatCard, whatGroup) {
@@ -101,6 +111,7 @@ func (playingCards *PlayingCards) Gang(whatCard *Card) bool {
 	playingCards.cardsInHand[whatCard.CardType].TakeWay(whatCard)
 	playingCards.cardsInHand[whatCard.CardType].TakeWay(whatCard)
 	playingCards.cardsInHand[whatCard.CardType].TakeWay(whatCard)
+	playingCards.cardsInHand[whatCard.CardType].TakeWay(whatCard)//此次操作可能是false，暗杠的时候为true，杠别人的牌是false
 	playingCards.cardsAlreadyGang[whatCard.CardType].AppendCard(whatCard)
 	playingCards.cardsAlreadyGang[whatCard.CardType].AppendCard(whatCard)
 	playingCards.cardsAlreadyGang[whatCard.CardType].AppendCard(whatCard)

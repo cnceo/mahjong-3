@@ -16,6 +16,9 @@ type RoomConfig struct {
 	HasMagicCard				bool        `json:"has_magic_card"`
 	WaitPlayerEnterRoomTimeout	int        `json:"wait_player_enter_room_timeout"`
 	WaitPlayerOperateTimeout	int        `json:"wait_player_operate_timeout"`
+	WithQuanFeng			bool        `json:"with_quan_feng"`	//是否支持圈风?
+	MaxPlayGameCnt			int            `json:"max_play_game_cnt"`	//不支持圈风的时候，最大的游戏局数
+	OnlyZiMo				bool        `json:"only_zi_mo"`	//是否只能自摸
 }
 
 func NewRoomConfig() *RoomConfig {

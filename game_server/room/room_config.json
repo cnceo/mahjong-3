@@ -11,5 +11,8 @@
   "With_gang" : true,
   "has_magic_card" : true,
   "wait_player_enter_room_timeout" : 300,
-  "wait_player_operate_timeout" : 15
+  "wait_player_operate_timeout" : 15,
+  "with_quan_feng" : true,
+  "max_play_game_cnt" : 32,
+  "only_zi_mo" : false
 }

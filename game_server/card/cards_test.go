@@ -19,7 +19,7 @@ func TestSort(t *testing.T) {
 
 	cards := NewCards()
 	for i:=0; i<13; i++ {
-		cards.AddAndSort(pool.GetCard())
+		cards.AddAndSort(pool.PopFront())
 	}
 	t.Log("before sort :")
 	t.Log(cards.ToString(), cards.Len())

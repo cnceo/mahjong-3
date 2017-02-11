@@ -20,11 +20,15 @@ func (mgr *RoomMgr) Init(conf string) error{
 func (mgr *RoomMgr) CreateRoom() *Room {
 	room := NewRoom(mgr.config)
 	mgr.rooms[room.id] = room
-	room.AddObserver(mgr)
+	room.addObserver(mgr)
 	room.Start()
 	return room
 }
 
-func (mgr *RoomMgr) OnRoomClose(room *Room) {
+func (mgr *RoomMgr) OnRoomClosed(room *Room) {
 	delete(mgr.rooms, room.id)
+}
+
+func (mgr *RoomMgr) OnPlayingGameEnd(room *Room) {
+	//do nothing
 }

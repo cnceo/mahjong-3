@@ -27,7 +27,7 @@ func TestPool(t *testing.T) {
 	beforeGet.AppendCards(pool.cards)
 	newCards := NewCards()
 	for{
-		card := pool.GetCard()
+		card := pool.PopFront()
 		if card == nil {
 			break
 		}
