@@ -70,7 +70,7 @@ func (playingCards *PlayingCards) DropTail() *Card {
 
 //吃牌，要吃whatCard，以及吃哪个组合whatGroup
 func (playingCards *PlayingCards) Chi(whatCard *Card, whatGroup *Cards) bool {
-	if !playingCards.canChi(whatCard, whatGroup) {
+	if !playingCards.CanChi(whatCard, whatGroup) {
 		return false
 	}
 
@@ -90,7 +90,7 @@ func (playingCards *PlayingCards) Chi(whatCard *Card, whatGroup *Cards) bool {
 
 //碰牌
 func (playingCards *PlayingCards) Peng(whatCard *Card) bool {
-	if !playingCards.canPeng(whatCard) {
+	if !playingCards.CanPeng(whatCard) {
 		return false
 	}
 
@@ -104,7 +104,7 @@ func (playingCards *PlayingCards) Peng(whatCard *Card) bool {
 
 //杠牌
 func (playingCards *PlayingCards) Gang(whatCard *Card) bool {
-	if !playingCards.canGang(whatCard) {
+	if !playingCards.CanGang(whatCard) {
 		return false
 	}
 
@@ -135,17 +135,17 @@ func (playingCards *PlayingCards) ComputeChiGroup(card *Card) []*Cards {
 }
 
 //检查是否能吃
-func (playingCards *PlayingCards) canChi(whatCard *Card, whatGroup *Cards) bool {
+func (playingCards *PlayingCards) CanChi(whatCard *Card, whatGroup *Cards) bool {
 	return playingCards.cardsInHand[whatCard.CardType].canChi(whatCard, whatGroup)
 }
 
 //检查是否能碰
-func (playingCards *PlayingCards) canPeng(whatCard *Card) bool  {
+func (playingCards *PlayingCards) CanPeng(whatCard *Card) bool  {
 	return playingCards.cardsInHand[whatCard.CardType].canPeng(whatCard)
 }
 
 //检查是否能杠
-func (playingCards *PlayingCards) canGang(whatCard *Card) bool {
+func (playingCards *PlayingCards) CanGang(whatCard *Card) bool {
 	return playingCards.cardsInHand[whatCard.CardType].canGang(whatCard)
 }
 

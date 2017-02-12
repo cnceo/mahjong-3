@@ -127,7 +127,7 @@ func (card *Card) MakeKey() int64 {
 
 func (card *Card) Name() string {
 	if card == nil {
-		return ""
+		return "nil"
 	}
 	cardNameMap := cardNameMap()
 	noNameMap, ok1 := cardNameMap[card.CardType]

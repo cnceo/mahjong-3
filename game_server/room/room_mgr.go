@@ -4,12 +4,12 @@ import "mahjong/game_server/util"
 
 type RoomMgr struct {
 	config 	*RoomConfig
-	rooms 	map[int64]*Room
+	rooms 	map[uint64]*Room
 }
 
 func NewRoomMgr() *RoomMgr {
 	return &RoomMgr{
-		rooms:	make(map[int64]*Room, 0),
+		rooms:	make(map[uint64]*Room, 0),
 	}
 }
 
@@ -19,16 +19,12 @@ func (mgr *RoomMgr) Init(conf string) error{
 
 func (mgr *RoomMgr) CreateRoom() *Room {
 	room := NewRoom(mgr.config)
-	mgr.rooms[room.id] = room
+	mgr.rooms[room.GetId()] = room
 	room.addObserver(mgr)
 	room.Start()
 	return room
 }
 
 func (mgr *RoomMgr) OnRoomClosed(room *Room) {
-	delete(mgr.rooms, room.id)
-}
-
-func (mgr *RoomMgr) OnPlayingGameEnd(room *Room) {
-	//do nothing
+	delete(mgr.rooms, room.GetId())
 }
