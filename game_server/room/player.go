@@ -11,6 +11,7 @@ import (
 
 type HuResult struct {
 	IsHu 	bool
+	IsZiMo	bool
 	Desc	string
 	Score	int
 }
@@ -37,11 +38,14 @@ type PlayerObserver interface {
 type Player struct {
 	id				uint64			// 玩家id
 	room			*Room			// 玩家所在的房间
+	lastGetCard		*card.Card	//	最后获得的牌
 	playingCards 	*card.PlayingCards	//玩家手上的牌
 	huChecker		[]hu_checker.Checker	//检查胡牌的checker
 
 	gangFromPlayers []*Player			//杠了谁的牌
+	gangByPlayers   []*Player			//被谁杠了
 
+	result	*HuResult
 	observers	 []PlayerObserver
 }
 
@@ -64,6 +68,8 @@ func (player *Player) Reset() {
 	log.Debug(player,"Player.Reset")
 	player.playingCards.Reset()
 	player.gangFromPlayers = player.gangFromPlayers[0:0]
+	player.lastGetCard = nil
+	player.result = nil
 }
 
 func (player *Player) AddObserver(ob PlayerObserver) {
@@ -73,11 +79,13 @@ func (player *Player) AddObserver(ob PlayerObserver) {
 func (player *Player) AddMagicCard(card *card.Card) {
 	log.Debug(player, "Player.AddMagicCard :", card.Name())
 	player.playingCards.AddMagicCard(card)
+	player.lastGetCard = card
 }
 
 func (player *Player) AddCard(card *card.Card) {
 	log.Debug(player, "Player.AddCard :", card.Name())
 	player.playingCards.AddCard(card)
+	player.lastGetCard = card
 }
 
 /*	计算指定的牌可以吃牌的组合
@@ -102,8 +110,7 @@ func (player *Player) CanDianPao(card *card.Card) bool {
 }
 
 func (player *Player) CanZiMo() bool{
-	result := player.ZiMo()
-	return result.IsHu
+	return player.IsHu().IsHu
 }
 
 func (player *Player) OperateChi(whatCard *card.Card, whatGroup *card.Cards) bool {
@@ -203,6 +210,10 @@ func (player *Player) OperateLeaveRoom() bool{
 	return ok
 }
 
+func (player *Player) BeGangBy(gangPlayer *Player) {
+	player.gangByPlayers = append(player.gangByPlayers, gangPlayer)
+}
+
 func (player *Player) Chi(whatCard *card.Card, whatGroup *card.Cards) bool {
 	log.Debug(player, "Chi card :", whatCard.Name(), ", group :", whatGroup.ToString())
 	return player.playingCards.Chi(whatCard, whatGroup)
@@ -235,19 +246,21 @@ func (player *Player) AutoDrop() *card.Card {
 //胡别人的牌
 func (player *Player) DianPao(card *card.Card) *HuResult {
 	player.AddCard(card)
-	result := player.IsHu()
-	if !result.IsHu {
+	player.result = player.IsHu()
+	player.result.IsZiMo = false
+	if !player.result.IsHu {
 		player.Drop(card)
 	}
-	log.Debug(player, "DianPao card :", card.Name(), " result :", result)
-	return result
+	log.Debug(player, "DianPao card :", card.Name(), " result :", player.result)
+	return player.result
 }
 
 //自摸
 func (player *Player) ZiMo() *HuResult {
-	result := player.IsHu()
-	log.Debug(player, "ZiMo result :", result)
-	return result
+	player.result = player.IsHu()
+	player.result.IsZiMo = true
+	log.Debug(player, "ZiMo result :", player.result)
+	return player.result
 }
 
 func (player *Player) IsHu() *HuResult {
@@ -286,7 +299,7 @@ func (player *Player) IsHu() *HuResult {
 func (player *Player) OnPlayingGameEnd() {
 	log.Debug(player, "OnPlayingGameEnd")
 	msg := &PlayingGameEndMsg{}
-	player.notifyObserver(NewPlayingGameEndMsg(player, msg))
+	player.notifyObserver(NewPlayerPlayingGameEndMsg(player, msg))
 }
 
 func (player *Player) OnRoomClosed() {
@@ -295,7 +308,7 @@ func (player *Player) OnRoomClosed() {
 	player.Reset()
 
 	msg := &RoomClosedMsg{}
-	player.notifyObserver(NewRoomClosedMsg(player, msg))
+	player.notifyObserver(NewPlayerRoomClosedMsg(player, msg))
 }
 
 func (player *Player) String() string{
@@ -346,8 +359,6 @@ func (player *Player) OnPlayerSuccessOperated(op *PlayerOperate) {
 		player.onPlayerEnterRoom(op)
 	case PlayerOperateLeaveRoom:
 		player.onPlayerLeaveRoom(op)
-	default:
-	//do nothing
 	}
 }
 
@@ -377,46 +388,172 @@ func (player *Player) waitResult(resultCh chan bool) bool{
 func (player *Player) notifyObserver(msg *PlayerMessage) {
 	log.Debug(player, "notifyObserverMsg", msg)
 	for _, ob := range player.observers {
-		//ob.OnPlayerSuccessOperated(player, op)
 		ob.OnMsg(player, msg)
 	}
 }
 
+func (player *Player) calcScore(huPlayer *Player) int {
+	if huPlayer.result == nil {//做个保护措施
+		return 0
+	}
+
+	total := 0
+
+	//计算一个基础得分
+	if player == huPlayer {//胡牌者是正分
+		total = huPlayer.result.Score
+	} else {//其它玩家的分数取决于胡牌者是否自摸
+		if huPlayer.result.IsZiMo {
+			total = -huPlayer.result.Score
+		} else {//不是自摸，只计算放炮的玩家的分数
+			if player == player.room.getPrevOperator() {
+				total = -huPlayer.result.Score
+			}
+		}
+	}
+
+	//计算杠别人的分数
+	for _, gangFrom := range player.gangFromPlayers {
+		if gangFrom == player {
+			total += 2
+		} else {
+			total += 1
+		}
+	}
+
+	total -= len(player.gangByPlayers) * 1	//计算放杠的分数
+	return total
+}
+
 //begin player operate event handler
 func (player *Player) onPlayerGet(op *PlayerOperate) {
-
+	if data, ok := op.Data.(*PlayerOperateGetData); ok {
+		msg := &GetCardMsg{
+			canZiMo : player.CanZiMo(),
+		}
+		if op.Operator == player {//拿到牌只告诉自己是什么牌
+			msg.Card = data.Card
+		}
+		player.notifyObserver(NewPlayerGetCardMsg(player, msg))
+	}
 }
 
 func (player *Player) onPlayerDrop(op *PlayerOperate) {
-
+	if data, ok := op.Data.(*PlayerOperateDropData); ok {
+		if op.Operator == player {//自己出牌，不用通知自己
+			return
+		}
+		msg := &DropCardMsg{
+			WhatCard : data.Card,
+			canChiGroup : player.ComputeChiGroup(data.Card),
+			canPeng	: player.CanPeng(data.Card),
+			canGang : player.CanGang(data.Card),
+			canDianPao : player.CanDianPao(data.Card),
+		}
+		player.notifyObserver(NewPlayerDropCardMsg(player, msg))
+	}
 }
 
 func (player *Player) onPlayerChi(op *PlayerOperate) {
-
+	if data, ok := op.Data.(*PlayerOperateChiData); ok {
+		if op.Operator == player {//自己吃牌，不用通知自己
+			return
+		}
+		msg := &ChiCardMsg{
+			ChiPlayer: op.Operator,
+			FromPlayer: player.room.getPrevOperator(),
+			WhatCard: data.Card,
+			WhatGroup: data.Group,
+		}
+		player.notifyObserver(NewPlayerChiCardMsg(player, msg))
+	}
 }
 
 func (player *Player) onPlayerPeng(op *PlayerOperate) {
-
+	if data, ok := op.Data.(*PlayerOperatePengData); ok {
+		if op.Operator == player {//自己碰牌，不用通知自己
+			return
+		}
+		msg := &PengCardMsg{
+			PengPlayer: op.Operator,
+			FromPlayer: player.room.getPrevOperator(),
+			WhatCard: data.Card,
+		}
+		player.notifyObserver(NewPlayerPengCardMsg(player, msg))
+	}
 }
 
 func (player *Player) onPlayerGang(op *PlayerOperate) {
-
+	if data, ok := op.Data.(*PlayerOperateGangData); ok {
+		if op.Operator == player {//自己杠牌，不用通知自己
+			return
+		}
+		msg := &GangCardMsg{
+			GangPlayer: op.Operator,
+			FromPlayer: player.room.getPrevOperator(),
+			WhatCard: data.Card,
+		}
+		player.notifyObserver(NewPlayerGangCardMsg(player, msg))
+	}
 }
 
 func (player *Player) onPlayerZiMo(op *PlayerOperate) {
-
+	if _, ok := op.Data.(*PlayerOperateZiMoData); ok {
+		msg := &ZiMoMsg{
+			HuPlayer: op.Operator,
+			WhatCard: op.Operator.lastGetCard,
+			Desc: op.Operator.result.Desc,
+			PlayerScore: make([]*PlayerScore, 0),
+		}
+		for _, tmpPlayer := range player.room.players {
+			score := &PlayerScore{
+				P : tmpPlayer,
+				Score: tmpPlayer.calcScore(op.Operator),
+			}
+			msg.PlayerScore = append(msg.PlayerScore, score)
+		}
+		player.notifyObserver(NewPlayerZiMoMsg(player, msg))
+	}
 }
 
 func (player *Player) onPlayerDianPao(op *PlayerOperate) {
-
+	if data, ok := op.Data.(*PlayerOperateDianPaoData); ok {
+		msg := &DianPaoMsg{
+			HuPlayer: op.Operator,
+			FromPlayer: player.room.getPrevOperator(),
+			WhatCard: data.Card,
+			Desc: op.Operator.result.Desc,
+			PlayerScore: make([]*PlayerScore, 0),
+		}
+		for _, tmpPlayer := range player.room.players {
+			score := &PlayerScore{
+				P : tmpPlayer,
+				Score: tmpPlayer.calcScore(op.Operator),
+			}
+			msg.PlayerScore = append(msg.PlayerScore, score)
+		}
+		player.notifyObserver(NewPlayerDianPaoMsg(player, msg))
+	}
 }
 
 func (player *Player) onPlayerEnterRoom(op *PlayerOperate) {
-
+	if _, ok := op.Data.(*PlayerOperateEnterRoomData); ok {
+		msg := &EnterRoomMsg{
+			EnterPlayer : op.Operator,
+			AllPlaer: player.room.players,
+		}
+		player.notifyObserver(NewPlayerEnterRoomMsg(player, msg))
+	}
 }
 
 func (player *Player) onPlayerLeaveRoom(op *PlayerOperate) {
-
+	if _, ok := op.Data.(*PlayerOperateEnterRoomData); ok {
+		msg := &LeaveRoomMsg{
+			LeavePlayer : op.Operator,
+			AllPlaer: player.room.players,
+		}
+		player.notifyObserver(NewPlayerLeaveRoomMsg(player, msg))
+	}
 }
 //end player operate event handler
 

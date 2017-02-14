@@ -37,9 +37,9 @@ type Room struct {
 	cardPool		*card.Pool				//洗牌池
 	magicCard		*card.Card				//当前的癞子牌
 	masterPlayer	*Player					//做东的玩家，打筛子的玩家
-	curOperatePlayer	*Player				//获得当前操作的玩家，可能是摸牌，碰牌，杠牌，吃牌，等他出牌
+	curOperator	*Player				//获得当前操作的玩家，可能是摸牌，碰牌，杠牌，吃牌，等他出牌
+	prevOperator *Player
 	quanFeng		*QuanFeng						//当前风圈
-	huResult 		*HuResult
 	otherPlayerOperate  []*PlayerOperate //当有玩家出牌，其它玩家的操作队列，依据优先级高低处理：胡 > 碰/杠 > 吃
 	//end playingGameData, reset when start playing game
 
@@ -163,10 +163,8 @@ func (room *Room) resetPlayingGameData() {
 	}
 
 	// 设定获得牌的玩家的索引为东家
-	room.curOperatePlayer = room.masterPlayer
-
-	//重置上一盘的结果
-	room.huResult = nil
+	room.curOperator = room.masterPlayer
+	room.prevOperator = nil
 
 	room.otherPlayerOperate = room.otherPlayerOperate[0:0]
 
@@ -174,15 +172,15 @@ func (room *Room) resetPlayingGameData() {
 
 func (room *Room) playingGame() {
 	// 发牌给玩家
-	card := room.putCardToPlayer(room.curOperatePlayer)
-	log.Debug("Room.playingGame put card[ ", card.Name(), "]to", room.curOperatePlayer)
+	card := room.putCardToPlayer(room.curOperator)
+	log.Debug("Room.playingGame put card[ ", card.Name(), "]to", room.curOperator)
 	if card == nil {
 		room.switchStatus(RoomStatusEndPlayGame)
 	} else {
 		data := &PlayerOperateGetData{
 			Card: card,
 		}
-		operate := NewPlayerOperateGet(room.curOperatePlayer, data)
+		operate := NewPlayerOperateGet(room.curOperator, data)
 		room.broadcastPlayerSuccessOperated(operate)
 		room.waitCurPlayerOperate()
 	}
@@ -349,12 +347,12 @@ func (room *Room) waitCurPlayerOperate() {
 		select {
 		case <-time.After(timer):
 			//超时没有操作，自动帮他出一张牌
-			card := room.curOperatePlayer.AutoDrop()
+			card := room.curOperator.AutoDrop()
 			log.Debug("Room.waitCurPlayerOperate auto drop :", card.Name())
-			room.curOperatePlayer.OperateDrop(card)
+			room.curOperator.OperateDrop(card)
 		case op := <-room.playerOpCh:
 			log.Debug("Room.waitCurPlayerOperate catch operate :", op.String())
-			if op.Operator != room.curOperatePlayer {
+			if op.Operator != room.curOperator {
 				//不是当前玩家的操作，直接无视
 				return
 			}
@@ -377,11 +375,11 @@ func (room *Room) waitOtherPlayerOperateAfterDrop() {
 		select {
 		case <- time.After(timer):
 			//超时没有其它玩家有任何操作, 设置下一个操作者，继续
-			room.curOperatePlayer = room.nextPlayer(room.curOperatePlayer)
-			log.Debug("Room.waitOtherPlayerOperateAfterDrop timeout, so set next operator :", room.curOperatePlayer)
+			room.curOperator = room.nextPlayer(room.curOperator)
+			log.Debug("Room.waitOtherPlayerOperateAfterDrop timeout, so set next operator :", room.curOperator)
 		case op := <-room.playerOpCh :
 			log.Debug("Room.waitOtherPlayerOperateAfterDrop operate:", op.String())
-			if op.Operator == room.curOperatePlayer {//操作者不可能是出牌者，直接无视
+			if op.Operator == room.curOperator {//操作者不可能是出牌者，直接无视
 				return
 			}
 			room.dealPlayerOperate(op)
@@ -398,13 +396,13 @@ func (room *Room) waitPlayerDrop() {
 		timer := timeout - breakTimerTime
 		select {
 		case <- time.After(timer):
-			card := room.curOperatePlayer.AutoDrop()
+			card := room.curOperator.AutoDrop()
 			log.Debug("Room.waitPlayerDrop auto drop :", card.Name())
-			room.curOperatePlayer.OperateDrop(card)
+			room.curOperator.OperateDrop(card)
 			return
 		case op := <-room.playerOpCh :
 			log.Debug("Room.waitPlayerDrop operate :", op.String())
-			if room.curOperatePlayer != op.Operator {
+			if room.curOperator != op.Operator {
 				return
 			}
 			if op.Op != PlayerOperateDrop {
@@ -432,6 +430,11 @@ func (room *Room) nextPlayer(player *Player) *Player {
 	return room.players[idx+1]
 }
 
+//获取上一次操作的玩家
+func (room *Room) getPrevOperator() *Player {
+	return room.prevOperator
+}
+
 //处理玩家操作
 func (room *Room) dealPlayerOperate(op *PlayerOperate) {
 	log.Debug("Room.dealPlayerOperate :", op.String())
@@ -443,9 +446,9 @@ func (room *Room) dealPlayerOperate(op *PlayerOperate) {
 			return
 		}
 		if data, ok := op.Data.(*PlayerOperateDianPaoData); ok {
-			room.huResult = op.Operator.DianPao(data.Card)
-			log.Debug("Room.dealPlayerOperate DianPao result :", room.huResult.String())
-			if room.huResult.IsHu {
+			result := op.Operator.DianPao(data.Card)
+			log.Debug("Room.dealPlayerOperate DianPao result :", result)
+			if result.IsHu {
 				room.lastHuPlayer = op.Operator
 				room.switchStatus(RoomStatusEndPlayGame)
 				op.Notify <- true
@@ -457,13 +460,13 @@ func (room *Room) dealPlayerOperate(op *PlayerOperate) {
 		return
 
 	case PlayerOperateZiMo :
-		if op.Operator != room.curOperatePlayer {
+		if op.Operator != room.curOperator {
 			op.Notify <- false
 			return
 		}
-		room.huResult = op.Operator.ZiMo()
-		log.Debug("Room.dealPlayerOperate ZiMo result :", room.huResult.String())
-		if room.huResult.IsHu {
+		result := op.Operator.ZiMo()
+		log.Debug("Room.dealPlayerOperate ZiMo result :", result)
+		if result.IsHu {
 			room.lastHuPlayer = op.Operator
 			room.switchStatus(RoomStatusEndPlayGame)
 			op.Notify <- true
@@ -474,7 +477,7 @@ func (room *Room) dealPlayerOperate(op *PlayerOperate) {
 		return
 
 	case PlayerOperateDrop:
-		if op.Operator != room.curOperatePlayer {
+		if op.Operator != room.curOperator {
 			op.Notify <- false
 			return
 		}
@@ -496,7 +499,7 @@ func (room *Room) dealPlayerOperate(op *PlayerOperate) {
 			op.Notify <- false
 			return
 		}
-		nextPlayer := room.nextPlayer(room.curOperatePlayer)
+		nextPlayer := room.nextPlayer(room.curOperator)
 		if nextPlayer != op.Operator {
 			op.Notify <- false
 			return
@@ -507,7 +510,8 @@ func (room *Room) dealPlayerOperate(op *PlayerOperate) {
 			if op.Operator.Chi(chiData.Card, chiData.Group) {
 				log.Debug("Room.dealPlayerOperate chi card :", chiData.Card.Name(), ", group :", chiData.Group)
 				//吃成功了，设定当前玩家为吃牌者，并等待他出牌
-				room.curOperatePlayer = op.Operator
+				room.prevOperator = room.curOperator
+				room.curOperator = op.Operator
 				op.Notify <- true
 				room.broadcastPlayerSuccessOperated(op)
 				room.waitPlayerDrop()
@@ -526,7 +530,8 @@ func (room *Room) dealPlayerOperate(op *PlayerOperate) {
 			if op.Operator.Peng(data.Card) {
 				//碰成功了，设定当前玩家为碰牌者，并等待他出牌
 				log.Debug("Room.dealPlayerOperate peng :", data.Card.Name())
-				room.curOperatePlayer = op.Operator
+				room.prevOperator = room.curOperator
+				room.curOperator = op.Operator
 				op.Notify <- true
 				room.broadcastPlayerSuccessOperated(op)
 				room.waitPlayerDrop()
@@ -546,10 +551,13 @@ func (room *Room) dealPlayerOperate(op *PlayerOperate) {
 			return
 		}
 		if data, ok := op.Data.(*PlayerOperateGangData); ok {
-			if op.Operator.Gang(data.Card, room.curOperatePlayer) {
+			if op.Operator.Gang(data.Card, room.curOperator) {
+				room.curOperator.BeGangBy(op.Operator)//设定当前操作者被杠了
+
 				//杠成功了，设定当前玩家为杠牌者
 				log.Debug("Room.dealPlayerOperate gang :", data.Card.Name())
-				room.curOperatePlayer = op.Operator
+				room.prevOperator = room.curOperator
+				room.curOperator = op.Operator
 				op.Notify <- true
 				room.broadcastPlayerSuccessOperated(op)
 				return
@@ -575,9 +583,6 @@ func (room *Room) dealPlayerOperate(op *PlayerOperate) {
 		op.Notify <- false
 		room.broadcastPlayerSuccessOperated(op)
 		return
-
-	default:
-		//do nothing
 	}
 }
 

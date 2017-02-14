@@ -43,105 +43,111 @@ func newPlayerMsg(t PlayerMsgType, player *Player, msg interface{}) *PlayerMessa
 }
 
 //玩家获得牌的消息
-type PlayerGetCardMsg struct {
+type GetCardMsg struct {
 	Card *card.Card
 	canZiMo bool
 }
-func NewPlayerGetCardMsg(msgOwner *Player, msg *PlayerGetCardMsg) *PlayerMessage {
+func NewPlayerGetCardMsg(msgOwner *Player, msg *GetCardMsg) *PlayerMessage {
 	return newPlayerMsg(PlayerMsgGet, msgOwner, msg)
 }
 
 //玩家出牌的消息
-type PlayerDropCardMsg struct {
+type DropCardMsg struct {
 	WhatCard *card.Card
 	canChiGroup []*card.Cards
 	canPeng	bool
 	canGang bool
 	canDianPao bool
 }
-func NewPlayerDropCardMsg(msgOwner *Player, msg *PlayerDropCardMsg) *PlayerMessage {
+func NewPlayerDropCardMsg(msgOwner *Player, msg *DropCardMsg) *PlayerMessage {
 	return newPlayerMsg(PlayerMsgDrop, msgOwner, msg)
 }
 
 //玩家吃牌的消息
-type PlayerChiCardMsg struct {
+type ChiCardMsg struct {
 	ChiPlayer		*Player
 	FromPlayer		*Player
 	WhatCard		*card.Card
 	WhatGroup		*card.Cards
 }
-func NewPlayerChiCardMsg(msgOwner *Player, msg *PlayerChiCardMsg) *PlayerMessage {
+func NewPlayerChiCardMsg(msgOwner *Player, msg *ChiCardMsg) *PlayerMessage {
 	return newPlayerMsg(PlayerMsgChi, msgOwner, msg)
 }
 
 //玩家碰牌的消息
-type PlayerPengCardMsg struct {
+type PengCardMsg struct {
 	PengPlayer		*Player
 	FromPlayer		*Player
 	WhatCard		*card.Card
 }
-func NewPlayerPengCardMsg(msgOwner *Player, msg *PlayerPengCardMsg) *PlayerMessage {
+func NewPlayerPengCardMsg(msgOwner *Player, msg *PengCardMsg) *PlayerMessage {
 	return newPlayerMsg(PlayerMsgPeng, msgOwner, msg)
 }
 
 //玩家杠牌的消息
-type PlayerGangCardMsg struct {
+type GangCardMsg struct {
 	GangPlayer		*Player
 	FromPlayer		*Player
 	WhatCard		*card.Card
 }
-func NewPlayerGangCardMsg(msgOwner *Player, msg *PlayerGangCardMsg) *PlayerMessage {
+func NewPlayerGangCardMsg(msgOwner *Player, msg *GangCardMsg) *PlayerMessage {
 	return newPlayerMsg(PlayerMsgGang, msgOwner, msg)
 }
 
-//玩家自摸的消息
-type PlayerZiMoMsg struct {
-	HuPlayer		*Player			// 胡牌的玩家
-	WhatCard		*card.Card		// 点炮的牌
-	Result			*HuResult		// 胡牌的结果
-	MyScore			int				// 我的分数
+type PlayerScore struct {
+	P *Player
+	Score int
 }
-func NewPlayerZiMoMsg(msgOwner *Player, msg *PlayerZiMoMsg) *PlayerMessage {
+//玩家自摸的消息
+type ZiMoMsg struct {
+	HuPlayer		*Player			// 胡牌的玩家
+	WhatCard		*card.Card		// 胡的牌
+	Desc			string			// 胡的描述
+	PlayerScore 	[]*PlayerScore	// 玩家的分数
+}
+func NewPlayerZiMoMsg(msgOwner *Player, msg *ZiMoMsg) *PlayerMessage {
 	return newPlayerMsg(PlayerMsgZiMo, msgOwner, msg)
 }
 
 
 //玩家点炮的消息
-type PlayerDianPaoMsg struct {
-	DropCardPlayer	*Player			// 出牌的玩家
+type DianPaoMsg struct {
 	HuPlayer		*Player			// 胡牌的玩家
-	WhatCard		*card.Card		// 点炮的牌
-	Result			*HuResult		// 胡牌的结果
-	MyScore			int				// 我的分数
+	FromPlayer		*Player			//
+	WhatCard		*card.Card		// 胡的牌
+	Desc			string			// 胡的描述
+	PlayerScore 	[]*PlayerScore	// 玩家的分数
 }
-func NewPlayerDianPaoMsg(msgOwner *Player, msg *PlayerDianPaoMsg) *PlayerMessage {
+func NewPlayerDianPaoMsg(msgOwner *Player, msg *DianPaoMsg) *PlayerMessage {
 	return newPlayerMsg(PlayerMsgDianPao, msgOwner, msg)
 }
 
 //玩家进入房间的消息
-type PlayerEnterRoomMsg struct {
+type EnterRoomMsg struct {
 	EnterPlayer *Player
+	AllPlaer 	[]*Player
 }
-func NewPlayerEnterRoomMsg(msgOwner *Player, msg *PlayerEnterRoomMsg) *PlayerMessage {
+func NewPlayerEnterRoomMsg(msgOwner *Player, msg *EnterRoomMsg) *PlayerMessage {
 	return newPlayerMsg(PlayerMsgEnterRoom, msgOwner, msg)
 }
 
 //玩家离开房间的消息
-type PlayerLeaveRoomMsg struct {
+type LeaveRoomMsg struct {
 	LeavePlayer *Player
+	AllPlaer 	[]*Player
 }
-func NewPlayerLeaveRoomMsg(msgOwner *Player, msg *PlayerLeaveRoomMsg) *PlayerMessage {
+func NewPlayerLeaveRoomMsg(msgOwner *Player, msg *LeaveRoomMsg) *PlayerMessage {
 	return newPlayerMsg(PlayerMsgLeaveRoom, msgOwner, msg)
 }
 
 //一盘游戏结束的消息
 type PlayingGameEndMsg struct {}
-func NewPlayingGameEndMsg(msgOwner *Player, msg *PlayingGameEndMsg) *PlayerMessage{
+func NewPlayerPlayingGameEndMsg(msgOwner *Player, msg *PlayingGameEndMsg) *PlayerMessage{
 	return newPlayerMsg(PlayerMsgPlayingGameEnd, msgOwner, msg)
 }
 
 //房间结束的消息
 type RoomClosedMsg struct {}
-func NewRoomClosedMsg(msgOwner *Player, msg *RoomClosedMsg) *PlayerMessage{
+func NewPlayerRoomClosedMsg(msgOwner *Player, msg *RoomClosedMsg) *PlayerMessage{
 	return newPlayerMsg(PlayerMsgRoomClosed, msgOwner, msg)
 }
