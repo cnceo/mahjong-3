@@ -30,7 +30,7 @@ func (x4x *X4X) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 		return false, x4x.config
 	}
 
-	inHandFengCardNum := cardsGetter.GetInHandCards(card.CardType_Feng).Len()
+	inHandFengCardNum := cardsGetter.GetCardsInHandByType(card.CardType_Feng).Len()
 	pengFengCardNum := cardsGetter.GetAlreadyPengCards(card.CardType_Feng).Len()
 	gangFengCardNum := cardsGetter.GetAlreadyGangCards(card.CardType_Feng).Len()/4*3
 

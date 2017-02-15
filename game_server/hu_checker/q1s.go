@@ -36,7 +36,7 @@ func (q1s *Q1S) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 	cardType := 0
 	cardTypeCnt := 0
 	for tmpType := card.CardType_Wan; tmpType < card.Max_CardType; tmpType++{
-		cardsInHand := cardsGetter.GetInHandCards(tmpType)
+		cardsInHand := cardsGetter.GetCardsInHandByType(tmpType)
 		if cardsInHand != nil && cardsInHand.Len() > 0 {
 			if cardsInHand.At(0).IsZiCard() {//清一色不能有字牌
 				return false, q1s.config
@@ -87,7 +87,7 @@ func (q1s *Q1S) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 		}
 	}
 */
-	inHandCardNum := cardsGetter.GetInHandCards(cardType).Len()
+	inHandCardNum := cardsGetter.GetCardsInHandByType(cardType).Len()
 	chiCardNum := cardsGetter.GetAlreadyChiCards(cardType).Len()
 	pengCardNum := cardsGetter.GetAlreadyPengCards(cardType).Len()
 	gangCardNum := cardsGetter.GetAlreadyGangCards(cardType).Len()/4*3

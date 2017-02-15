@@ -139,20 +139,12 @@ func (room *Room) switchStatus(status RoomStatusType) {
 
 func (room *Room) startPlayGame()  {
 	log.Debug("Room.startPlayerGame")
-	room.resetPlayingGameData()
-	room.switchStatus(RoomStatusPlayingGame)
-}
 
-func (room *Room) resetPlayingGameData() {
-	log.Debug("Room.resetPlayingGameData")
 	// 重置牌池, 洗牌
 	room.cardPool.ReGenerate()
 
 	// 计算癞子牌，如果有的话
 	room.computeMagicCard()
-
-	// 初始化素有玩家
-	room.initAllPlayer()
 
 	// 选择东家
 	room.masterPlayer = room.selectMasterPlayer()
@@ -168,6 +160,19 @@ func (room *Room) resetPlayingGameData() {
 
 	room.otherPlayerOperate = room.otherPlayerOperate[0:0]
 
+	//发初始牌给所有玩家
+	room.putInitCardsToPlayers()
+
+	//通知所有玩家手上的牌
+	for _, player := range room.players {
+		data := &PlayerOperateGetInitCardsData{
+			CardsInHand: player.playingCards.GetCardsInHand(),
+			MagicCards: player.playingCards.GetMagicCards(),
+		}
+		player.OnPlayerSuccessOperated(NewPlayerOperateGetInitCards(player, nil, data))
+	}
+
+	room.switchStatus(RoomStatusPlayingGame)
 }
 
 func (room *Room) playingGame() {
@@ -223,7 +228,7 @@ func (room *Room) waitAllPlayerEnter() {
 }
 
 //给所有玩家发初始化的13张牌
-func (room *Room) initAllPlayer() {
+func (room *Room) putInitCardsToPlayers() {
 	log.Debug("Room.initAllPlayer")
 	for _, player := range room.players {
 		player.Reset()

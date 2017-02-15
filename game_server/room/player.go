@@ -47,6 +47,8 @@ type Player struct {
 
 	result	*HuResult
 	observers	 []PlayerObserver
+
+	operateCh		chan *PlayerOperate
 }
 
 func NewPlayer(huChecker []hu_checker.Checker) *Player {
@@ -264,7 +266,7 @@ func (player *Player) ZiMo() *HuResult {
 }
 
 func (player *Player) IsHu() *HuResult {
-	magicLen := player.playingCards.GetMagicCardsLen()
+	magicLen := player.playingCards.GetMagicCards().Len()
 	log.Debug(player, "IsHu magicLen :", magicLen)
 	for _, checker := range player.huChecker {
 		if magicLen == 0 {
@@ -319,7 +321,7 @@ func (player *Player) String() string{
 }
 
 func (player *Player) computeMagicCandidate() []*card.Cards {
-	magicNum := player.playingCards.GetMagicCardsLen()
+	magicNum := player.playingCards.GetMagicCards().Len()
 	switch magicNum {
 	case 0:
 		return nil
@@ -341,6 +343,8 @@ func (player *Player) computeMagicCandidate() []*card.Cards {
 func (player *Player) OnPlayerSuccessOperated(op *PlayerOperate) {
 	log.Debug(player, "OnPlayerSuccessOperated", op)
 	switch op.Op {
+	case PlayerOperateGetInitCards:
+
 	case PlayerOperateGet:
 		player.onPlayerGet(op)
 	case PlayerOperateDrop:
@@ -426,6 +430,16 @@ func (player *Player) calcScore(huPlayer *Player) int {
 }
 
 //begin player operate event handler
+func (player *Player) onPlyaerGetInitCards(op *PlayerOperate) {
+	if data, ok := op.Data.(*PlayerOperateGetInitCardsData); ok {
+		msg := &GetInitCardsMsg{
+			CardsInHand: data.CardsInHand,
+			MagicCards: data.MagicCards,
+		}
+		player.notifyObserver(NewPlayerGetInitCardsMsg(player, msg))
+	}
+}
+
 func (player *Player) onPlayerGet(op *PlayerOperate) {
 	if data, ok := op.Data.(*PlayerOperateGetData); ok {
 		msg := &GetCardMsg{
@@ -556,4 +570,3 @@ func (player *Player) onPlayerLeaveRoom(op *PlayerOperate) {
 	}
 }
 //end player operate event handler
-

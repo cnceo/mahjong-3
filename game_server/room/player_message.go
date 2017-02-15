@@ -8,7 +8,8 @@ import (
 type PlayerMsgType	int
 
 const  (
-	PlayerMsgGet			PlayerMsgType = iota + 1
+	PlayerMsgGetInitCards	PlayerMsgType = iota + 1
+	PlayerMsgGet
 	PlayerMsgDrop
 	PlayerMsgChi
 	PlayerMsgPeng
@@ -41,6 +42,16 @@ func newPlayerMsg(t PlayerMsgType, player *Player, msg interface{}) *PlayerMessa
 		Msg: msg,
 	}
 }
+
+//玩家获得初始牌的消息
+type GetInitCardsMsg struct {
+	CardsInHand 	[]*card.Cards
+	MagicCards		*card.Cards
+}
+func NewPlayerGetInitCardsMsg(msgOwner *Player, msg *GetInitCardsMsg) *PlayerMessage {
+	return newPlayerMsg(PlayerMsgGetInitCards, msgOwner, msg)
+}
+
 
 //玩家获得牌的消息
 type GetCardMsg struct {

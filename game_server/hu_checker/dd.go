@@ -44,7 +44,7 @@ func (dd *DD) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 	diffCardCnt := 0
 	totalCardCnt := 0
 	for cardType := card.CardType_Wan; cardType < card.Max_CardType; cardType++{
-		cardsInHand := cardsGetter.GetInHandCards(cardType)
+		cardsInHand := cardsGetter.GetCardsInHandByType(cardType)
 		diffCardCnt += cardsInHand.CalcDiffCardCnt()
 		totalCardCnt += cardsInHand.Len()
 	}

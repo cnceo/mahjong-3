@@ -36,7 +36,7 @@ func (q1sdd *Q1SDD) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 	cardType := 0
 	cardTypeCnt := 0
 	for tmpType := card.CardType_Wan; tmpType < card.Max_CardType; tmpType++{
-		cardsInHand := cardsGetter.GetInHandCards(tmpType)
+		cardsInHand := cardsGetter.GetCardsInHandByType(tmpType)
 		if cardsInHand != nil && cardsInHand.Len() > 0 {
 			if cardsInHand.At(0).IsZiCard() {//清一色对对胡不能有字牌
 				//log.Debug("card is zi,", cardsInHand.At(0).Name())
@@ -51,7 +51,7 @@ func (q1sdd *Q1SDD) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 		}
 	}
 
-	inHandCardNum := cardsGetter.GetInHandCards(cardType).Len()
+	inHandCardNum := cardsGetter.GetCardsInHandByType(cardType).Len()
 	pengCardNum := cardsGetter.GetAlreadyPengCards(cardType).Len()
 	gangCardNum := cardsGetter.GetAlreadyGangCards(cardType).Len()/4*3
 	totalCardNum := inHandCardNum + pengCardNum + gangCardNum
@@ -61,9 +61,9 @@ func (q1sdd *Q1SDD) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 	}
 
 	//如果全是AAA类型的牌并且能胡的牌的话，那么牌的数量应该是 (cardTypeCnt-1)*3 + 2
-	cardCnt := cardsGetter.GetInHandCards(cardType).CalcDiffCardCnt()
+	cardCnt := cardsGetter.GetCardsInHandByType(cardType).CalcDiffCardCnt()
 	huCardNum := (cardCnt - 1) * 3 + 2
-	if cardsGetter.GetInHandCards(cardType).Len() != huCardNum {//不相等的话手上该类型的牌肯定不是AAA类型和将
+	if cardsGetter.GetCardsInHandByType(cardType).Len() != huCardNum {//不相等的话手上该类型的牌肯定不是AAA类型和将
 		//log.Debug("card in hand is not hu card num, huCardNum :", huCardNum)
 		return false, q1sdd.config
 	}

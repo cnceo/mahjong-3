@@ -30,7 +30,7 @@ func (d3y *D3Y) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 		return false, d3y.config
 	}
 
-	inHandJianCardNum := cardsGetter.GetInHandCards(card.CardType_Jian).Len()
+	inHandJianCardNum := cardsGetter.GetCardsInHandByType(card.CardType_Jian).Len()
 	pengJianCardNum := cardsGetter.GetAlreadyPengCards(card.CardType_Jian).Len()
 	gangJianCardNum := cardsGetter.GetAlreadyGangCards(card.CardType_Jian).Len()
 

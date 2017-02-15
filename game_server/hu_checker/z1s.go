@@ -30,8 +30,8 @@ func (z1s *Z1S) IsHu(cardsGetter CardsGetter) (bool, *HuConfig) {
 		return false, z1s.config
 	}
 
-	totalCardNum := cardsGetter.GetInHandCards(card.CardType_Feng).Len()
-	totalCardNum += cardsGetter.GetInHandCards(card.CardType_Jian).Len()
+	totalCardNum := cardsGetter.GetCardsInHandByType(card.CardType_Feng).Len()
+	totalCardNum += cardsGetter.GetCardsInHandByType(card.CardType_Jian).Len()
 
 	totalCardNum += cardsGetter.GetAlreadyPengCards(card.CardType_Feng).Len()
 	totalCardNum += cardsGetter.GetAlreadyPengCards(card.CardType_Jian).Len()

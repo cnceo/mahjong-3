@@ -173,7 +173,11 @@ func (playingCards *PlayingCards) cardsSliceToString(cardsSlice []*Cards) string
 	return str
 }
 
-func (playingCards *PlayingCards) GetInHandCards(cardType int) *Cards{
+func (playingCards *PlayingCards) GetCardsInHand() []*Cards{
+	return playingCards.cardsInHand
+}
+
+func (playingCards *PlayingCards) GetCardsInHandByType(cardType int) *Cards{
 	if cardType < 0 || cardType >= Max_CardType {
 		return nil
 	}
@@ -215,6 +219,6 @@ func (playingCards *PlayingCards) IsHu() bool {
 	return playingCards.cardsForCheckHu.IsHu()
 }
 
-func (playingCards *PlayingCards) GetMagicCardsLen() int{
-	return playingCards.magicCards.Len()
+func (playingCards *PlayingCards) GetMagicCards() *Cards{
+	return playingCards.magicCards
 }

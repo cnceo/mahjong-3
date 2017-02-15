@@ -8,7 +8,11 @@ import (
 type PlayerOperateType int
 
 const (
-	PlayerOperateGet			PlayerOperateType = iota + 1
+	//被动操作，系统触发
+	PlayerOperateGetInitCards	PlayerOperateType = iota + 1
+	PlayerOperateGet
+
+	//主动操作，用户触发
 	PlayerOperateDrop
 	PlayerOperateChi
 	PlayerOperatePeng
@@ -41,6 +45,14 @@ func newPlayerOperate(op PlayerOperateType, operator *Player, notify chan bool, 
 		Operator: operator,
 		Notify:	notify,
 	}
+}
+
+type PlayerOperateGetInitCardsData struct {
+	CardsInHand 	[]*card.Cards
+	MagicCards		*card.Cards
+}
+func NewPlayerOperateGetInitCards(operator *Player, notify chan bool, data *PlayerOperateGetInitCardsData) *PlayerOperate {
+	return newPlayerOperate(PlayerOperateGetInitCards, operator, notify, data)
 }
 
 type PlayerOperateChiData struct {
