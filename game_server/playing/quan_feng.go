@@ -1,4 +1,4 @@
-package room
+package playing
 
 import "mahjong/game_server/card"
 

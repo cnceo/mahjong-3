@@ -1,4 +1,4 @@
-package room
+package playing
 
 import (
 	"mahjong/game_server/card"
@@ -185,9 +185,10 @@ func (player *Player) OperateEnterRoom(room *Room) bool{
 	result := make(chan bool, 1)
 	data := &PlayerOperateEnterRoomData{}
 	op := NewPlayerOperateEnterRoom(player, result, data)
-	player.room.PlayerOperate(op)
+	room.PlayerOperate(op)
 	ok := player.waitResult(result)
 	if ok {
+		log.Debug("OperateEnterRoom succ, then set player.room")
 		player.room = room
 	}
 
@@ -551,20 +552,21 @@ func (player *Player) onPlayerDianPao(op *PlayerOperate) {
 }
 
 func (player *Player) onPlayerEnterRoom(op *PlayerOperate) {
-	if _, ok := op.Data.(*PlayerOperateEnterRoomData); ok {
+	if data, ok := op.Data.(*PlayerOperateEnterRoomData); ok {
 		msg := &EnterRoomMsg{
 			EnterPlayer : op.Operator,
-			AllPlaer: player.room.players,
+			AllPlayer: data.Players,
 		}
+		log.Debug(player, "onPlayerEnterRoom, msg :", msg)
 		player.notifyObserver(NewPlayerEnterRoomMsg(player, msg))
 	}
 }
 
 func (player *Player) onPlayerLeaveRoom(op *PlayerOperate) {
-	if _, ok := op.Data.(*PlayerOperateEnterRoomData); ok {
+	if data, ok := op.Data.(*PlayerOperateLeaveRoomData); ok {
 		msg := &LeaveRoomMsg{
 			LeavePlayer : op.Operator,
-			AllPlaer: player.room.players,
+			AllPlayer: data.Players,
 		}
 		player.notifyObserver(NewPlayerLeaveRoomMsg(player, msg))
 	}

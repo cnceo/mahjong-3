@@ -1,4 +1,4 @@
-package room
+package playing
 
 import (
 	"mahjong/game_server/card"
@@ -136,7 +136,7 @@ func NewPlayerDianPaoMsg(msgOwner *Player, msg *DianPaoMsg) *PlayerMessage {
 //玩家进入房间的消息
 type EnterRoomMsg struct {
 	EnterPlayer *Player
-	AllPlaer 	[]*Player
+	AllPlayer 	[]*Player
 }
 func NewPlayerEnterRoomMsg(msgOwner *Player, msg *EnterRoomMsg) *PlayerMessage {
 	return newPlayerMsg(PlayerMsgEnterRoom, msgOwner, msg)
@@ -145,7 +145,7 @@ func NewPlayerEnterRoomMsg(msgOwner *Player, msg *EnterRoomMsg) *PlayerMessage {
 //玩家离开房间的消息
 type LeaveRoomMsg struct {
 	LeavePlayer *Player
-	AllPlaer 	[]*Player
+	AllPlayer 	[]*Player
 }
 func NewPlayerLeaveRoomMsg(msgOwner *Player, msg *LeaveRoomMsg) *PlayerMessage {
 	return newPlayerMsg(PlayerMsgLeaveRoom, msgOwner, msg)

@@ -1,4 +1,4 @@
-package room
+package playing
 
 import (
 	"mahjong/game_server/card"
@@ -106,14 +106,14 @@ func NewPlayerOperateZiMo(operator *Player, notify chan bool, data *PlayerOperat
 }
 
 type PlayerOperateEnterRoomData struct {
-
+	Players []*Player
 }
 func NewPlayerOperateEnterRoom(operator *Player, notify chan bool, data *PlayerOperateEnterRoomData) *PlayerOperate {
 	return newPlayerOperate(PlayerOperateEnterRoom, operator, notify, data)
 }
 
 type PlayerOperateLeaveRoomData struct {
-
+	Players []*Player
 }
 func NewPlayerOperateLeaveRoom(operator *Player, notify chan bool, data *PlayerOperateLeaveRoomData) *PlayerOperate {
 	return newPlayerOperate(PlayerOperateLeaveRoom, operator, notify, data)
